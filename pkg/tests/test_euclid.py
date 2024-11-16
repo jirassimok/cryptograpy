@@ -1,3 +1,4 @@
+# mypy: check-untyped-defs
 from contextlib import redirect_stdout
 from math import gcd as math_gcd
 import os
@@ -23,23 +24,22 @@ class TestEuclid(unittest.TestCase):
     """
     _params: tuple[
         tuple[int, int, int] # a, b, expected
-        | tuple[int, int]    # a, b (compare to math.gcd)
         | tuple[int, int, int, str] # a, b, expected, message
         | tuple[int, int, str]      # a, b, message (compare to math.gcd)
         , ...
     ] = (
         (1, 1, 1),
         (1, 2, 1),
-        (127, 127, 127, 'prime'), # self prime
-        (128, 128, 128), # self composite
-        (13, 17, 1), # small primes
-        (2, 50, 2), # small multiple
+        (127, 127, 127, 'same prime'), # self prime
+        (128, 128, 128, 'same composite'),
+        (13, 17, 1, 'small primes'),
+        (2, 50, 2, 'small multiple'),
         (17, 17*51312, 17, 'large multiple'),
         (127*2*2*3*13, 127*5*17*23, 127, 'not coprime'),
-        (6553, 3651, 1, 'primes'), # larger primes
+        (6553, 3651, 1, 'larger primes'),
         (2*(3**8)*17*(227**3), (5**5)*7*7*743*1021, 1, 'coprime'),
-        (1243, 5432, 1), # some bigger coprimes
-        (102313, 103927), # from the homework
+        (1243, 5432, 1, 'larger coprimes'),
+        (102313, 103927, 'homework example'),
     )
 
     @staticmethod
@@ -111,15 +111,13 @@ class TestEuclid(unittest.TestCase):
         """
         for a, b, *rest in self.params:
             match rest:
-                case []:
-                    yield a, b, math_gcd(a, b)
                 case [int() as g]:
                     yield a, b, g
                 case [str() as msg]:
                     yield a, b, math_gcd(a, b), msg
                 case [int() as g, str() as msg]:
                     yield a, b, g, msg
-                case _:
+                case _:  # pragma: no cover (illegal state)
                     raise TypeError('invalid params')
 
 
@@ -179,4 +177,3 @@ class TestExtEuclid3(TestExtEuclid):
 
 class TestExtEuclid4(TestExtEuclid):
     ext_euclid_function = staticmethod(ext_euclid_full_columns)
-

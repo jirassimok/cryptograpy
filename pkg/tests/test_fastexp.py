@@ -1,5 +1,6 @@
+# mypy: check-untyped-defs
 # Don't bother trying to make pyright check this file.
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from contextlib import redirect_stdout
 from math import log10, floor
 import os
@@ -17,8 +18,7 @@ from homework.fastexp import (
     slowexp,
 )
 
-type FullExpArgs = tuple[int, int, int]
-type ExpArgs = tuple[int, int] | tuple[int, int, None] | FullExpArgs
+type ExpArgs = tuple[int, int] | tuple[int, int, None] | tuple[int, int, int]
 """Tuple of arguments to fastexp.
 """
 
@@ -38,10 +38,10 @@ def ndigits(n):
     return floor(log10(n)) + 1
 
 
-def large_cases() -> tuple[
-        tuple[tuple[int, int], str]
-        | tuple[tuple[int, int, int], str],
-        ...]:
+## Testing parameters
+# These functions provide the test parameters for TestFastExp.
+
+def large_cases() -> Iterable[CaseArgs]:
     """Construct a number of cases with fairly large arguments.
 
     These test cases do not include expected results; they must be compared to
@@ -68,8 +68,8 @@ def large_cases() -> tuple[
 def small_cases() -> Iterator[CaseArgs]:
     """Some basic test cases for modular exponentiation.
     """
-    cases: list[tuple[FullExpArgs, int, str]
-                | tuple[FullExpArgs, str]] = [
+    cases: list[tuple[tuple[int, int, int], int, str]
+                | tuple[tuple[int, int, int], str]] = [
         ((4, 2, 19), 16, "mod doesn't wrap"),
         ((4, 57, 19), 7, "mod wraps"),
         ((2, 58, 59), 1, 'generator^order'),
@@ -81,9 +81,12 @@ def small_cases() -> Iterator[CaseArgs]:
 
     for case in cases:
         yield case
+        # Make a copy of each case, with a much larger quotient
         (base, exp, mod), *rest = case
         yield (base + base * mod, exp, mod), *rest
 
+
+## Test classes
 
 class TestFastexp(unittest.TestCase):
     @staticmethod
