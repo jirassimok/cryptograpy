@@ -1,0 +1,48 @@
+# Notes:
+# I use deprecatd typing.Callable instead of collections.abc.Callable,
+# not that any of the tools I'm using care.
+
+[tool.mypy]
+# Syntax from mypy.ini
+# enable_incomplete_feature = NewGenericSyntax
+# implicit_optional = True
+# mypy_path = $MYPY_CONFIG_FILE_DIR/python-type-stubs/stubs
+
+# implicit_optional = true
+# allow_redefinition = true
+
+# Not helpful because the stubs aren't very good.
+mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
+# I had to create a path in the stubs directory with the
+# exact name of the module I was checking (sympy).
+
+# check_untyped_defs = true
+
+
+[tool.pyright]
+
+# Ignore "type: ignore" so we can ignore mypy errors separately.
+enableTypeIgnoreComments = false
+
+# stubPath = "./python-type-stubs/stubs"
+
+[tool.coverage.report]
+exclude_also = [
+    # Exclude lines that are just "pass" from coverage.
+    "^ *pass$",
+    # Exclude the bodies of certain typing constructs
+    "^ *@overload\\b",
+    "^if TYPE_CHECKING:",
+    "^class .*\\(Protocol\\):",
+    # Exclude invariant assertions
+    "^ *assert False\\b",
+    # Based on example in coverage library docs
+    "^ *# no cover: start(?s:.)+?\n *# no cover: stop",
+]
+
+omit = [
+    "pkg/homework/alt_primes.py",
+    "pkg/homework/integer_types.py",
+    "pkg/homework/homework4_notebook.py",
+    "pkg/homework/recursive_logging_decorator.py",
+]

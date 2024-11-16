@@ -1,0 +1,30 @@
+[flake8]
+# E503 warns for line breaks before operators.
+# E306 requires a blank line before nested defs.
+# E203 rejects spaces before ALL colons, but they should be allowed in slices.
+# E704 rejects "multiple statements" in one line, which apparently
+#      includes an inline ellipsis in an overload.
+# E261 rejects comments with extra #s with spaces
+# E266 rejects block comments with extra #s without spaces
+ignore = W503, E306, E203, E704, E261, E266
+
+# W504 warns for line breaks after operators.
+# (It's enabled by default, alongside W503.)
+# select = W504
+
+# E225 space around (assignment) operator
+# E226 space around math operator
+# E227 space around bitwise operator
+# E231 space after :
+# E252 space around default-arg =
+# E301 one blank line required (before nested defs)
+# E302 two blank lines required (before top-level defs)
+# E305 two blank lines after def
+# F401 unused import
+per-file-ignores =
+    pkg/homework/__init__.py:F401
+    pkg/homework/euclid.py:E226,E231,E252,E301,E302
+    pkg/homework/fastexp.py:E226
+    pkg/homework/util.py:E302
+    pkg/tests/*:E226,E227
+    pkg/tests/test_prime.py:E225,E226
