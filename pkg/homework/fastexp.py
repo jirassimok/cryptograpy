@@ -2,9 +2,6 @@
 # mypy: allow-redefinition
 # Homework 3
 
-# TODO: There are a bunch of "pragma: no cover (not used)"s in here:
-#       their code should be removed.
-
 from typing import Literal
 
 from .util import is_verbose, Verbosity
@@ -50,7 +47,7 @@ def verbose_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
     mw = len(str(modulus)) if modulus else None
     ew = len(str(exp))
     def print_sub(x, e, y, eqn=None):
-        if mw is None:  # pragma: no cover (not used)
+        if mw is None:
             xw = len(str(base))
             yw = len(str(acc))
         else:
@@ -63,7 +60,7 @@ def verbose_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
     def print_row(mode: Literal['even', 'odd', 'both'] = 'both',
                   eqn: str | None = None):
         x, e, y = base, exp, acc
-        if mode == 'both':  # pragma: no cover (not used)
+        if mode == 'both':
             print_sub(x, e, y)
         elif mode == 'even':
             print_sub(x, e, '.', eqn)
@@ -74,7 +71,7 @@ def verbose_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
 
     acc = 1
     print_sub('x', 'e', 'y')
-    print_sub(base, exp, 1)
+    print_row()
     while exp:
         if exp % 2:
             exp -= 1
@@ -107,7 +104,7 @@ def verbose2_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
     mw = len(str(modulus)) if modulus else None
     ew = len(str(exp))
     def print_sub(x, e, y, eqn=None, rhs=None):
-        if mw is None:  # pragma: no cover (not used)
+        if mw is None:
             xw = len(str(base))
             yw = len(str(acc))
         else:
@@ -123,21 +120,21 @@ def verbose2_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
                   eqn: str | None = None,
                   rhs: tuple[int, int] | None = None):
         x, e, y = base, exp, acc
-        if eqn is None:  # pragma: no cover (not used)
+        if eqn is None:
             eqn = ''
 
         rhs # use the variable so mypy can redefine it
         rhs: str | tuple[int, int] | None # add str
-        if rhs is None:  # pragma: no cover (not used)
+        if rhs is None:
             rhs = ''
         elif modulus is not None:
             rhs = f'{rhs[0]} \N{identical to} {rhs[1]} mod {modulus}'
-        else:  # pragma: no cover (not used)
+        else:
             rhs = str(rhs[0])
         # In the two latter branches above, mypy thinks rhs[0] is (int | str),
         # but it works out in the end; now mypy knows rhs is str.
 
-        if mode == 'both':  # pragma: no cover (not used)
+        if mode == 'both':
             print_sub(x, e, y)
         elif mode == 'even':
             print_sub(x, e, ' ', rhs, eqn)
@@ -147,7 +144,7 @@ def verbose2_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
             # f'y <- x\N{multiplication sign}y mod {modulus}')
 
     print_sub('x', 'e', 'y')
-    print_sub(base, exp, 1)
+    print_row()
     print_sub(' ', ' ', ' ')
 
     acc = 1

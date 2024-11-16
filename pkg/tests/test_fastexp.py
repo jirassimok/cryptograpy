@@ -85,6 +85,10 @@ def small_cases() -> Iterator[CaseArgs]:
         (base, exp, mod), *rest = case
         yield (base + base * mod, exp, mod), *rest
 
+    # No-modulus cases
+    yield ((5, 4), 625, 'no modulus')
+    yield ((3, 16), 43046721, 'no modulus')
+
 
 ## Test classes
 
