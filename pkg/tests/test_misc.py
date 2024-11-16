@@ -3,18 +3,20 @@ Tests for miscellaneous support code.
 """
 from collections import Counter
 import contextvars
-from itertools import takewhile
+from itertools import dropwhile, takewhile
 from math import prod
 import unittest
 
 from homework.factors import factorize
-from homework.prime import primes
+from homework.prime import is_prime, primes, primerange
 
 from .test_prime import PRIMES_BELOW_4000
 
 
 class TestSympyAlternates(unittest.TestCase):
     """Test for the alternate versions of functions based on USE_SYMPY setting.
+
+    These are just basic checks for sanity and coverage purposes.
     """
     token: contextvars.Token[bool] | None = None
 
@@ -44,3 +46,13 @@ class TestSympyAlternates(unittest.TestCase):
     def test_primes(self):
         self.assertEqual(list(takewhile(lambda p: p < 4000, primes())),
                          PRIMES_BELOW_4000)
+
+    def test_primerange(self):
+        self.assertEqual(list(dropwhile(lambda p: p < 1000,
+                                        takewhile(lambda p: p < 4000,
+                                                  primerange(1000, 3001)))),
+                         [p for p in PRIMES_BELOW_4000 if 1000 <= p < 3001])
+
+    def test_is_prime(self):
+        for p in range(4000):
+            self.assertEqual(is_prime(p), p in PRIMES_BELOW_4000, p)

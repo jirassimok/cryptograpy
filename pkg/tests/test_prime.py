@@ -1,5 +1,6 @@
 # noqa: E225
-from itertools import dropwhile, islice, takewhile
+from collections.abc import Iterable
+from itertools import count, dropwhile, islice, takewhile, zip_longest
 import unittest
 
 import homework.prime as prime
@@ -12,19 +13,13 @@ def take(iterator, n):
     return list(islice(iterator, n))
 
 
-def takebelow(iterable, n):
-    """Get items below n from the start of an iterable.
-    """
-    return list(takewhile(lambda x: x < n, iterable))
-
-
 def takebetween(iterable, start, stop):
     """Get values in the range [start, stop) from an iterator.
 
     Gets the first run of values in the range.
     """
-    return list(takewhile(lambda x: x < stop,
-                          dropwhile(lambda x: x < start, iterable)))
+    return takewhile(lambda x: x < stop,
+                     dropwhile(lambda x: x < start, iterable))
 
 
 class TestPrime(unittest.TestCase):
@@ -52,6 +47,21 @@ class TestPrime(unittest.TestCase):
                                       f' First item: {item}')
             raise self.failureException(msg)
 
+    def assertIterEqual(self, gen1: Iterable, gen2: Iterable, msg=None):
+        canary = object()
+        for i, a, b in zip_longest(count(), gen1, gen2, fillvalue=canary):
+            if a is canary and b is canary:
+                break  # both ended; test passed
+            elif a is canary:
+                raise self.failureException(
+                    f'left iterator ended before right: {msg}')
+            elif b is canary:
+                raise self.failureException(
+                    f'right iterator ended before left: {msg}')
+            elif a != b:
+                raise self.failureException(
+                    f'iterator mismatch at position {i}: {a} != {b} [{msg}]')
+
     def test_primes(self):
         self.assertEqual(list(takewhile(lambda p: p < 4000, prime.primes())),
                          PRIMES_BELOW_4000)
@@ -71,19 +81,19 @@ class TestPrime(unittest.TestCase):
             return list(primerange(start, stop))
 
         # Simple cases
-        self.assertEqual(pr(10), [2, 3, 5, 7])
+        self.assertEqual(pr(10), [2, 3, 5, 7], 'just end')
         self.assertEqual(pr(-5, 10), [2, 3, 5, 7], 'negative start')
-        self.assertEqual(pr(5, 17), [5, 7, 11, 13])
-        self.assertEqual(pr(6, 18), [7, 11, 13, 17])
-        self.assertEqual(pr(23, 24), [23])
+        self.assertEqual(pr(5, 17), [5, 7, 11, 13], 'both bounds prime')
+        self.assertEqual(pr(6, 18), [7, 11, 13, 17], 'neither bound prime')
+        self.assertEqual(pr(23, 24), [23], 'size-one prime range')
 
         # Empty ranges
         self.assertEmpty(primerange(2), 'empty [x, 2)')
-        self.assertEmpty(primerange(-10, 2), 'empty [0, 2)')
+        self.assertEmpty(primerange(-10, 2), 'empty [negative, 2)')
         self.assertEmpty(primerange(0, 2), 'empty [0, 2)')
         self.assertEmpty(primerange(8, 11), 'empty [8, 11)')
         # start/neither/end are prime
-        self.assertEqual(pr(89, 96), [89])
+        self.assertEqual(pr(89, 96), [89], 'start at only prime')
         self.assertEmpty(primerange(90, 96), 'empty [90, 96)')
         self.assertEmpty(primerange(90, 97), 'empty [90, 97)')
 
@@ -94,8 +104,15 @@ class TestPrime(unittest.TestCase):
         self.assertEmpty(primerange(10, 1), 'bad range [10, 1)')
 
         self.assertEqual(pr(4000), PRIMES_BELOW_4000)
-        self.assertEqual(pr(2000, 3000),
-                         takebetween(PRIMES_BELOW_4000, 2000, 3000))
+        self.assertIterEqual(primerange(2000, 3000),
+                             takebetween(PRIMES_BELOW_4000, 2000, 3000),
+                             '[2000, 3000)')
+        self.assertIterEqual(primerange(2000, 3000),
+                             takebetween(PRIMES_BELOW_4000, 2000, 3001),
+                             'high range, end before prime')
+        self.assertIterEqual(primerange(2003, 3000),
+                             takebetween(PRIMES_BELOW_4000, 2003, 3000),
+                             'high range, start at prime')
 
     def test_parallel_cache(self):
         """You can use multiple instances of the generator with the same cache.
