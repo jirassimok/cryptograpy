@@ -1,5 +1,6 @@
 # mypy: check-untyped-defs
 from contextlib import redirect_stdout
+import contextvars
 from math import gcd as math_gcd
 import os
 import unittest
@@ -7,6 +8,7 @@ from unittest.mock import patch
 
 from homework.euclid import (
     # These are the functions tested in this file.
+    divmod as manual_divmod,
     euclid,
     euclid2,
     ext_euclid,
@@ -177,3 +179,34 @@ class TestExtEuclid3(TestExtEuclid):
 
 class TestExtEuclid4(TestExtEuclid):
     ext_euclid_function = staticmethod(ext_euclid_full_columns)
+
+
+class TestManualDivmod(unittest.TestCase):
+    token: contextvars.Token[bool] | None = None
+
+    @classmethod
+    def setUpClass(cls):
+        import homework.euclid
+        cls.token = homework.euclid.MANUAL_DIVMOD.set(True)
+
+    @classmethod
+    def tearDownClass(cls):
+        import homework.euclid
+        homework.euclid.MANUAL_DIVMOD.reset(cls.token)
+        cls.token = None
+
+    def test_basic(self):
+        self.assertEqual(manual_divmod(123, 1), (123, 0))
+        self.assertEqual(manual_divmod(9, 9), (1, 0))
+        self.assertEqual(manual_divmod(3, 8), (0, 3))
+        self.assertEqual(manual_divmod(30, 5), (6, 0))
+        self.assertEqual(manual_divmod(18, 7), (2, 4))
+        self.assertEqual(manual_divmod(37*94 + 18, 37), (94, 18))
+
+    def test_errs(self):
+        with self.assertRaises(ValueError):
+            manual_divmod(-1, 3)
+        with self.assertRaises(ValueError):
+            manual_divmod(3, -2)
+        with self.assertRaises(ZeroDivisionError):
+            manual_divmod(3, 0)
