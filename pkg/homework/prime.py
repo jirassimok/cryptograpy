@@ -151,12 +151,6 @@ def primerange(a: int, b: int | None = None, /) -> Iterator[int]:
     while (p := next(it)) < b:
         yield p
 
-    # # Itertools version:
-    # from itertools import dropwhile, takewhile
-    # yield from takewhile(lambda n: n < b,
-    #                      dropwhile(lambda n: n < a, primes()))
-    pass
-
 
 @alternate_impl(USE_SYMPY, _sn.isprime)
 def is_prime(n, /):
