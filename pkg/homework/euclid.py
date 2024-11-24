@@ -89,13 +89,11 @@ def euclid(m: int, n: int) -> int:
 def euclid2(m: int, n: int, *, verbose:Verbosity=None) -> int:
     if is_verbose(verbose):
         if m == 0:
-            print(f'0 = {n} * 0 + {n}')
             def print_eqn():
-                pass
+                print(f'0 = {n} * 0 + {n}')
         elif n == 0:
-            print(f'{m} = 0 * 0 + {m}')
             def print_eqn():
-                pass
+                print(f'{m} = 0 * 0 + {m}')
         else:
             # I wonder if I can narrow q at all...
             w_a = w_q = len(str(max(m, n)))
@@ -108,6 +106,7 @@ def euclid2(m: int, n: int, *, verbose:Verbosity=None) -> int:
             pass
 
     if m == 0 or n == 0:
+        print_eqn()
         return m or n
 
     # a = b * q + r
