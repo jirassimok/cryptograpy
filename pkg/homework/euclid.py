@@ -9,8 +9,15 @@ from functools import wraps
 from typing import Callable, Final
 
 from .util import (alternate_impl, copy_callable_type, cr, Verbosity,
-                   is_verbose, printer, recursive_logging, SimpleDecorator)
+                   is_verbose, printer, recursive_logging)
 
+__all__ = [
+    'euclid',
+    'ext_euclid',
+    'ext_euclid_magic_index',
+    'ext_euclid_full_table',
+    'ext_euclid_full_columns'
+]
 
 ## Extra setup
 
@@ -44,7 +51,7 @@ def divmod(dividend: int, divisor: int) -> tuple[int, int]:
 
 
 def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
-    """Decorate a function to make all integer arguments respect ALLOW_NEGATIVE.
+    """Decorate a function to make all int arguments respect ALLOW_NEGATIVE.
 
     Checking is done at call time on both positional and keyword arguments.
     """
@@ -139,7 +146,6 @@ def ext_euclid(m: int, n: int, *,
     while r != 0:  # change this to >0 to restrict to positives
         a, b = b, r
         q, r = divmod(a, b)
-        i = 0
         s.append(s[-2] - q * s[-1])
         t.append(t[-2] - q * t[-1])
         print_eqn(a, b, q, r, s, t)
