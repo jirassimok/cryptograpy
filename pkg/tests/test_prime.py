@@ -156,24 +156,22 @@ class TestPrimeCache(TestCase):
 
 
 class TestSieve(TestCase):
-    def setUp(self):
-        self.sympy_token = homework.util.USE_SYMPY.set(False)
-
-    def tearDown(self):
-        homework.util.USE_SYMPY.reset(self.sympy_token)
-        self.sympy_token = None
-
     def test_basic(self):
         sieve = prime.Sieve(4000)
-        for a, e in zip(sieve.generate(), PRIMES_BELOW_4000):
-            self.assertEqual(a, e)
+        self.assertIterEqual(sieve.generate(), PRIMES_BELOW_4000)
 
     def test_extended(self):
-        sieve = prime.Sieve(100)
-        # Before populating the sieve, all odds look prime.
+        size = 300
+        sieve = prime.Sieve(size)
+        # Before populating the sieve, all odds look prime (and evens don't).
         for i, isprime in enumerate(sieve):
             if i > 2:
                 self.assertEqual(isprime, bool(i % 2), f'{i} initial')
+
+        # The lowest values look accurate even before being populated.
+        self.assertEqual(sieve[0], False)
+        self.assertEqual(sieve[1], False)
+        self.assertEqual(sieve[2], True)
 
         sieve.populate()
         # Test sieve contents
@@ -181,8 +179,10 @@ class TestSieve(TestCase):
             self.assertEqual(isprime, i in PRIMES_BELOW_4000, f'{i} present')
 
         # Generate still works after populating
-        for a, e in zip(sieve.generate(), PRIMES_BELOW_4000):
-            self.assertEqual(a, e, f'{i} re-generate')
+        # Generate still works after populating
+        self.assertIterEqual(sieve.generate(),
+                             takebetween(PRIMES_BELOW_4000, 0, size),
+                             're-generate')
 
     def test_getitem(self):
         sieve = prime.Sieve(100)
