@@ -312,14 +312,17 @@ def ext_euclid_full_columns(m: int, n: int, *,
 
 ## Excessive class structure for funny indexing tricks
 
+type IntType[T] = Callable[[int], T]
+
+
 class PseudoIndexMeta(type):  # pragma: no cover
     """Metaclass for classes instantiable using + and -
     """
     def __new__(cls, name, bases, dict_):
         return super().__new__(cls, name, bases, dict_)
-    def __add__(cls, other):
+    def __add__[T](cls: Callable[[int], T], other: int) -> T:
         return cls(other) if isinstance(other, int) else NotImplemented
-    def __sub__(cls, other):
+    def __sub__[T](cls: Callable[[int], T], other: int) -> T:
         return cls(-other) if isinstance(other, int) else NotImplemented
 
 
@@ -342,8 +345,7 @@ class PseudoTable:  # pragma: no cover
         def __repr__(self):
             return f'{type(self).__name__}{self.offset:+}'
 
-    i: Final[PseudoIndexMeta] = PseudoIndex
-    del PseudoIndex
+    i: Final[type[PseudoIndex]] = PseudoIndex
 
     def __init__(self, iterable: Iterable[int], maxlen: int | None = None):
         self._data = deque(iterable, maxlen)
@@ -354,14 +356,14 @@ class PseudoTable:  # pragma: no cover
                                         type(self).__name__,
                                         1)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: PseudoIndex) -> int:
         cls = type(self)
         if not isinstance(item, cls.i):
             raise ValueError(f'{cls.__name__} index must be an offset from '
                              f'{cls.__name__}.i')
         return self._data[item.offset]
 
-    def __setitem__(self, item, value):
+    def __setitem__(self, item: type[PseudoIndex], value: int):
         if item is not self.i:
             name = type(self).__name__
             raise ValueError(f"{name} only supports setting index "
