@@ -195,19 +195,6 @@ class TestSieve(unittest.TestCase):
         with self.assertRaises(IndexError):
             sieve[100]
 
-    def test_setitem(self):
-        sieve = prime.Sieve(100)
-        self.assertEqual(sieve[9], True)
-        sieve[9] = False
-        self.assertEqual(sieve[9], False)
-        sieve[9] = True  # This shouldn't be allowed.
-        self.assertEqual(sieve[9], True)
-
-        with self.assertRaises(TypeError):
-            sieve[9] = 0
-        with self.assertRaises(ValueError):
-            sieve[8] = False
-
     def test_extra(self):
         # Tests for some internal and/or unused functions/code paths.
         sieve = prime.Sieve(100)

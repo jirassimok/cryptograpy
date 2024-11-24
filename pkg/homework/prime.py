@@ -254,20 +254,6 @@ class Sieve:
             else:
                 yield False
 
-    def __setitem__(self, item: int, value: bool):
-        if not isinstance(value, bool):
-            raise TypeError(f'{type(self).__name__} values must be bool,'
-                            f' not {type(item).__name__}')
-
-        byte, offset = self._toindex(item)
-        if byte is None or offset is None: # check both for mypy
-            raise ValueError('can not set even indices'
-                             f' in {type(self).__name__}')
-        elif value:
-            self._data[byte] |= 1 << offset
-        else:
-            self._data[byte] &= bits.zero_at(offset)
-
     def populate(self):
         """Fill the sieve immediately.
         """
