@@ -14,6 +14,8 @@ from .util import (alternate_impl, copy_callable_type, cr, Verbosity,
 
 ## Extra setup
 
+type IntOrTable = int | PseudoTable | deque[int]
+
 # TODO: move to util module
 MANUAL_DIVMOD: ContextVar[bool] = ContextVar('MANUAL_DIVMOD', default=False)
 """Whether to avoid reliance on // and % (and divmod).
@@ -146,8 +148,7 @@ def ext_euclid(m: int, n: int, *,
 # Extremely busy function to prepare a nice printer for the extended algorithm.
 def _ext_printer(m: int, n: int, verbose: Verbosity
                  ) -> Callable[[int, int, int, int,
-                                int | PseudoTable | deque[int],
-                                int | PseudoTable | deque[int]], None]:
+                                IntOrTable, IntOrTable], None]:
     """Print table headers and create logging function for ext_euclid.
     """
     if is_verbose(verbose):
@@ -159,8 +160,7 @@ def _ext_printer(m: int, n: int, verbose: Verbosity
 
 def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
                          ) -> Callable[[int, int, int, int,
-                                        int | PseudoTable | deque[int],
-                                        int | PseudoTable | deque[int]], None]:
+                                        IntOrTable, IntOrTable], None]:
     builtins.print('verbose=', verbose)
     print = printer(is_verbose(verbose))
 
@@ -208,7 +208,7 @@ def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
     print_initial(2)
 
     # Normalize s or t to int. Either int or last value from a table.
-    def normalize(v: int | PseudoTable | deque[int]) -> int:
+    def normalize(v: IntOrTable) -> int:
         if isinstance(v, int):
             return v
         elif isinstance(v, PseudoTable):
@@ -217,8 +217,7 @@ def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
             return v[-1]
 
     def print_eqn(a: int, b: int, q: int, r: int,
-                  s: int | PseudoTable | deque[int],
-                  t: int | PseudoTable | deque[int]) -> None:
+                  s: IntOrTable, t: IntOrTable) -> None:
         s, t = normalize(s), normalize(t)
         # if m < n, the first r is m, and it may be wider than the regular r
         # width. So in this case, right-align r in its regular column, then
