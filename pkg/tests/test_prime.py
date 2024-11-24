@@ -22,17 +22,11 @@ def takebetween(iterable, start, stop):
                      dropwhile(lambda x: x < start, iterable))
 
 
-class TestPrime(unittest.TestCase):
-    """Some basic tests for my prime-number utils.
-
-    Doesn't test the fancier features like making sure the cache.
+class TestCase(unittest.TestCase):
+    """Base class for test cases in this file.
     """
     def setUp(self):
         self.sympy_token = homework.util.USE_SYMPY.set(False)
-
-    def tearDown(self):
-        homework.util.USE_SYMPY.reset(self.sympy_token)
-        self.sympy_token = None
 
     def assertEmpty(self, iterator, msg=None):
         """Assert that an iterator or generator is empty.
@@ -62,6 +56,10 @@ class TestPrime(unittest.TestCase):
                 raise self.failureException(
                     f'iterator mismatch at position {i}: {a} != {b} [{msg}]')
 
+
+class TestPrime(TestCase):
+    """Some basic tests for my prime-number utils.
+    """
     def test_primes(self):
         self.assertEqual(list(takewhile(lambda p: p < 4000, prime.primes())),
                          PRIMES_BELOW_4000)
@@ -114,6 +112,8 @@ class TestPrime(unittest.TestCase):
                              takebetween(PRIMES_BELOW_4000, 2003, 3000),
                              'high range, start at prime')
 
+
+class TestPrimeCache(TestCase):
     def test_parallel_cache(self):
         """You can use multiple instances of the generator with the same cache.
         """
@@ -155,7 +155,7 @@ class TestPrime(unittest.TestCase):
             next(it)
 
 
-class TestSieve(unittest.TestCase):
+class TestSieve(TestCase):
     def setUp(self):
         self.sympy_token = homework.util.USE_SYMPY.set(False)
 
@@ -211,7 +211,7 @@ class TestSieve(unittest.TestCase):
             prime.Sieve._index_of(4)
 
 
-class TestBits(unittest.TestCase):
+class TestBits(TestCase):
     def test_bit_masks(self):
         """Extra tests for coverage of methods not used in the Sieve.
 
@@ -226,6 +226,7 @@ class TestBits(unittest.TestCase):
         self.assertEqual(bits.zero_at2(0) & 0xFF, 0b11111110, 0)
         self.assertEqual(bits.zero_at2(7) & 0xFF, 0b01111111, 7)
         self.assertEqual(bits.zero_at2(3) & 0xFF, 0b11110111, 3)
+
 
 PRIMES_BELOW_4000 = [
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
