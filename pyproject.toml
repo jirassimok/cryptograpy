@@ -28,8 +28,6 @@ enableTypeIgnoreComments = false
 
 [tool.coverage.report]
 exclude_also = [
-    # Exclude lines that are just "pass" from coverage.
-    "^ *pass$",
     # Exclude the bodies of certain typing constructs
     "^ *@overload\\b",
     "^if TYPE_CHECKING:",
