@@ -3,6 +3,7 @@ from contextlib import redirect_stdout
 import contextvars
 from math import gcd as math_gcd
 import os
+from typing import no_type_check
 import unittest
 from unittest.mock import patch
 
@@ -193,6 +194,7 @@ class TestManualDivmod(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         import homework.euclid
+        assert isinstance(cls.token, contextvars.Token)
         homework.euclid.MANUAL_DIVMOD.reset(cls.token)
         cls.token = None
 
@@ -219,6 +221,7 @@ class TestPseudoTable(unittest.TestCase):
     These aren't near comprehensive, which is fine as long as they aren't used
     in any primary implementations.
     """
+    @no_type_check  # we test illegal argument types in here, too
     def test_basic(self):
         table = PseudoTable([t1 := 35, t2 := 46], maxlen=2)
         i = table.i
