@@ -4,7 +4,7 @@ from random import randrange, sample as randsample
 from .factors import factorize
 from .fastexp import fastexp
 from .prime import is_prime
-from .util import is_verbose, supstr, Verbosity
+from .util import is_verbose, printer, supstr, Verbosity
 
 # TODO: Split this functions out into appropriate modules or
 #       at least rename this one.
@@ -125,6 +125,7 @@ def bsgs_log(x: int, base: int, modulus: int, *,
              verbose: Verbosity = False) -> int:
     """Compute discrete log of x with the given base and modulus.
     """
+    print = printer(verbose)
     if is_verbose(verbose):
         def printrow():
             print(f'{k:>{_width}}\t{giant_acc:>3}\t{baby_acc:>3}')
