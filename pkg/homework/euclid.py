@@ -234,7 +234,7 @@ def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
 @check_signs
 def ext_euclid_magic_index(m: int, n: int, *,
                            verbose:Verbosity=None) -> tuple[int, int, int]:
-    """Variant that uses the PsuedoTables to pretend its using a full table.
+    """Variant that uses the PseudoTables to pretend its using a full table.
     """
     print_eqn = _ext_printer(m, n, verbose)
 
