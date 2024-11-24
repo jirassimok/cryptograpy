@@ -1,6 +1,8 @@
 # -*- flycheck-checker: python-pyright; -*-
+from __future__ import annotations
 import builtins
 from collections import deque
+from collections.abc import Iterable
 from contextvars import ContextVar
 from dataclasses import dataclass
 from functools import wraps
@@ -144,8 +146,8 @@ def ext_euclid(m: int, n: int, *,
 # Extremely busy function to prepare a nice printer for the extended algorithm.
 def _ext_printer(m: int, n: int, verbose: Verbosity
                  ) -> Callable[[int, int, int, int,
-                                int | deque[int],
-                                int | deque[int]], None]:
+                                int | PseudoTable | deque[int],
+                                int | PseudoTable | deque[int]], None]:
     """Print table headers and create logging function for ext_euclid.
     """
     if is_verbose(verbose):
@@ -155,10 +157,10 @@ def _ext_printer(m: int, n: int, verbose: Verbosity
             pass
         return dummy_print_eqn
 
-def _verbose_ext_printer(verbose: Verbosity,
-                         m: int, n: int) -> Callable[[int, int, int, int,
-                                                      int | deque[int],
-                                                      int | deque[int]], None]:
+def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
+                         ) -> Callable[[int, int, int, int,
+                                        int | PseudoTable | deque[int],
+                                        int | PseudoTable | deque[int]], None]:
     builtins.print('verbose=', verbose)
     print = printer(is_verbose(verbose))
 
@@ -311,9 +313,9 @@ def ext_euclid_full_columns(m: int, n: int, *,
 
 ## Excessive class structure for funny indexing tricks
 
-# This is cursed. It's a metaclass for classes that can be instantiated
-# using + and -.
 class PseudoIndexMeta(type):  # pragma: no cover
+    """Metaclass for classes instantiable using + and -
+    """
     def __new__(cls, name, bases, dict_):
         return super().__new__(cls, name, bases, dict_)
     def __add__(cls, other):
@@ -322,7 +324,7 @@ class PseudoIndexMeta(type):  # pragma: no cover
         return cls(-other) if isinstance(other, int) else NotImplemented
 
 
-class PseudoTable(deque[int]):  # pragma: no cover
+class PseudoTable:  # pragma: no cover
     """A weird view of the last rows of a table columns.
 
     Supports indexing via offsets from PseudoTable.i, and appending
@@ -344,50 +346,25 @@ class PseudoTable(deque[int]):  # pragma: no cover
     i: Final[PseudoIndexMeta] = PseudoIndex
     del PseudoIndex
 
+    def __init__(self, iterable: Iterable[int], maxlen: int | None = None):
+        self._data = deque(iterable, maxlen)
+
+    def __repr__(self):
+        # Use the deque's repr, but with this class' name.
+        return repr(self._data).replace(type(self._data).__name__,
+                                        type(self).__name__,
+                                        1)
+
     def __getitem__(self, item):
         cls = type(self)
         if not isinstance(item, cls.i):
             raise ValueError(f'{cls.__name__} index must be an offset from '
                              f'{cls.__name__}.i')
-        return super().__getitem__(item.offset)
+        return self._data[item.offset]
 
     def __setitem__(self, item, value):
         if item is not self.i:
             name = type(self).__name__
             raise ValueError(f"{name} only supports setting index "
                              f"{name}.i, as an alias for 'append'")
-        return super().append(value)
-
-    # This method is deleted below, but mypy and pyright don't notice.
-    @staticmethod
-    def unsupported(fn: Callable) -> Callable:
-        name = fn.__name__
-        @wraps(fn)
-        def unsupported(self, *args, **kwargs):
-            raise TypeError(f'{type(self).__name__} does not support {name}()')
-        return unsupported
-
-    # Why even bother? This isn't a deque.
-    @unsupported
-    def index(self): ...
-    @unsupported
-    def insert(self): ...
-    @unsupported
-    def appendleft(self): ...
-    @unsupported
-    def extend(self): ...
-    @unsupported
-    def extendleft(self): ...
-    @unsupported
-    def pop(self): ...
-    @unsupported
-    def popleft(self): ...
-    @unsupported
-    def remove(self): ...
-    @unsupported
-    def reverse(self): ...
-    @unsupported
-    def rotate(self): ...
-    @unsupported
-    def count(self): ...
-    del unsupported
+        return self._data.append(value)
