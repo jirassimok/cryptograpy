@@ -175,9 +175,18 @@ def is_prime(n, /):
 
 # This sieve is slower than the Itertools recipe, but more space-efficient.
 class Sieve:
-    """Represents the numbers up to n in half the space as a BitArray.
+    """Very space-efficient sieve of Eratosthenes.
 
-    2 is True and all other evens are False.
+    Tracks the primality of the odd numbers up to its size as a bit array of
+    half that size.
+
+    Use generate() to get a generator that gets primes from the sieve, filling
+    it as needed.
+
+    Use populate() to immediately fill it entirely().
+
+    Indexing by numbers reveals whether they are prime, if they have already
+    been generated.
     """
     @property
     def size(self) -> int:
@@ -270,6 +279,7 @@ class Sieve:
         yield 2
         cursor = 3
         while p := self._find_true(cursor):
+            # If the sieve was filled asynchronously, stop filling it.
             if not self._full:
                 self.setmultiples(p)
             yield p
