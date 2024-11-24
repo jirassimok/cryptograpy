@@ -174,59 +174,6 @@ def verbose2_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
     return acc
 
 
-## Tests
-# no cover: start
-
-def test_fastexp(fastexp_fn, test_cases):
-    # Test cases: (test against builtins.pow in every case)
-
-    def test(args, msg=None):
-        realargs = [x for x in args if not isinstance(x, str)]
-        assert fastexp_fn(*realargs) == pow(*realargs), (
-            args if msg is None else f'{msg}: {args}')
-
-    failures = []
-    for n, args in enumerate(test_cases):
-        try:
-            test(args, msg=n)
-        except AssertionError:
-            failures.append((n, args))
-
-    if failures:
-        print('Tests failed:')
-        for (n, args) in failures:
-            print(f'\t{n}: {args}')
-    else:
-        print('All tests passed.')
-
-
-def test_cases():
-    from itertools import permutations
-    from math import log10, floor
-
-    def d(n): # number of digits
-        return floor(log10(n)) + 1
-
-    p3 = 127
-    p60 = 529247038585542108568540290995084860068177551640322543102099
-    p40 = 5365152086379702330152001265920318993223
-    p30 = 491677946950317334566508347041
-    return (
-        ('initial case', p3, 329701361, p60),
-        ('2 to a big power', 2, p60, p40),
-        *((f'big primes p{d(a)}**p{d(b)} % p{d(c)}', a, b, c)
-          for a, b, c in permutations((p30, p40, p60))),
-        # that -> 351420569476919220033676836688505908233185988390868705944354
-        ('non-mod large result', p3, 2575791), # result is 5418959 digits
-    )
-
-
-def run_tests():
-    test_fastexp(fastexp, test_cases())
-
-# no cover: stop
-
-
 ## Variants
 
 def slowexp(base: int, exp: int, modulus: int | None = None):

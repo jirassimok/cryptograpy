@@ -1,7 +1,4 @@
 # -*- flycheck-checker: python-pyright; -*-
-
-# TODO: Add tests
-
 import builtins
 from collections import deque
 from contextvars import ContextVar

@@ -190,26 +190,3 @@ def bsgs_log(x: int, base: int, modulus: int, *,
     exp = i * bound + j
     print(f'i×m + j = {i}×{bound} + {j} = {exp} ≡ {exp % order} mod {order}')
     return exp % order
-
-
-## Tests
-# no cover: start
-
-# So far, just examples from the notes
-test_cases = (
-    (3, 2, 101), # 69
-    (3, 2, 29), # 5 (requires the final modulus)
-    (7, 11, 29), # 24
-    (13, 11, 29), # 22
-)
-
-
-def run_tests(logfn, test_cases=test_cases):
-    from sympy.ntheory import discrete_log
-    for a, b, n in test_cases:
-        if ((actual := logfn(a, base=b, modulus=n))
-                != (expected := discrete_log(n, a, b))):
-            raise AssertionError(
-                f'log_{b}({a}) mod {n} = {expected}, not {actual}')
-
-# no cover: stop
