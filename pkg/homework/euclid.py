@@ -338,7 +338,7 @@ class PseudoTable:  # pragma: no cover
         """
         offset: int
         def __post_init__(self):
-            if self.offset > 0:
+            if self.offset >= 0:
                 raise ValueError('Pseudoindex offset must be negative')
         def __repr__(self):
             return f'{type(self).__name__}{self.offset:+}'
