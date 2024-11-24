@@ -173,51 +173,6 @@ def is_prime(n, /):
         return True
 
 
-# # This isn't actually used; it's just a guideline for Sieve's internals.
-# class BitArray:
-#     """An array of bit flags.
-#     """
-#     @property
-#     def size(self) -> int:
-#         return self._size
-#
-#     def __init__(self, size: int):
-#         self._size = size
-#         true_size = size // 8 + bool(size % 8)
-#         self._data = array('B', bytearray(true_size))
-#
-#     def __len__(self):
-#         return self.size
-#
-#     def _toindex(self, index: int) -> tuple[int, int]:
-#         if not isinstance(index, int):
-#             raise TypeError(f'{type(self).__name__} indices must be int,'
-#                             f' not {type(index).__name__}')
-#         elif index >= self.size:
-#             raise IndexError(f'{type(self).__name__} index out of range')
-#         return divmod(index, 8)
-#
-#     def __getitem__(self, item: int) -> bool:
-#         byte, offset = self._toindex(item)
-#         return bool((1 << offset) & self._data[byte])
-#
-#     def __setitem__(self, item: int, value: bool):
-#         if not isinstance(value, bool):
-#             raise TypeError(f'{type(self).__name__} values must be bool,'
-#                             f' not {type(item).__name__}')
-#         byte, offset = self._toindex(item)
-#         if value:
-#             self._data[byte] |= 1 << offset
-#         else:
-#             self._data[byte] &= ~(1 << offset)
-#
-#     def __iter__(self) -> Iterator[bool]:
-#         data = self._data
-#         for i in range(self.size):
-#             byte, offset = divmod(i, 8)
-#             yield bool((1 << offset) & data[byte])
-
-
 # This sieve is slower than the Itertools recipe, but more space-efficient.
 class Sieve:
     """Represents the numbers up to n in half the space as a BitArray.
