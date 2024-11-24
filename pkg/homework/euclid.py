@@ -326,25 +326,28 @@ class PseudoIndexMeta(type):  # pragma: no cover
         return cls(-other) if isinstance(other, int) else NotImplemented
 
 
+@dataclass(frozen=True)
+class PseudoIndex(metaclass=PseudoIndexMeta):
+    """Index representing the next row of a table.
+
+    Subtracting from this type allows indexing earlier into the table.
+    """
+    offset: int
+
+    def __post_init__(self):
+        if self.offset >= 0:
+            raise ValueError('Pseudoindex offset must be negative')
+
+    def __repr__(self):
+        return f'{type(self).__name__}{self.offset:+}'
+
+
 class PseudoTable:  # pragma: no cover
     """A weird view of the last rows of a table columns.
 
     Supports indexing via offsets from PseudoTable.i, and appending
     by assignment to index PseudoTable.i.
     """
-    @dataclass(frozen=True)
-    class PseudoIndex(metaclass=PseudoIndexMeta):
-        """Index representing the next row of a table.
-
-        Subtracting from this type allows indexing earlier into the table.
-        """
-        offset: int
-        def __post_init__(self):
-            if self.offset >= 0:
-                raise ValueError('Pseudoindex offset must be negative')
-        def __repr__(self):
-            return f'{type(self).__name__}{self.offset:+}'
-
     i: Final[type[PseudoIndex]] = PseudoIndex
 
     def __init__(self, iterable: Iterable[int], maxlen: int | None = None):
