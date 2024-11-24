@@ -46,7 +46,7 @@ class PrimeCache(Container, Iterable[int]):
         # assert item > self._largest
         self._largest = item
 
-    def __getitem__(self, item):  # pragma: no cover
+    def __getitem__(self, item):
         if item != -1:
             raise ValueError('Can only retrieve last prime')
         return self._largest
@@ -85,7 +85,7 @@ class PrimeCacheIterator(Iterator[int]):
                         return p
                 else:
                     # This only happens if the cache grows incorrectly.
-                    assert False, 'unreachable'  # pragma: no cover
+                    assert False, 'unreachable'
         except StopIteration as e:
             self._last = None
             raise e from None

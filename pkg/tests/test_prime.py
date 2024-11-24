@@ -142,6 +142,8 @@ class TestPrimeCache(TestCase):
         with self.assertRaises(ValueError):
             cache[-2]
 
+        self.assertEqual(cache[-1], 3)
+
         it = iter(cache)
         self.assertEqual(next(it), 2)
         cache.add_largest(5)
@@ -153,6 +155,8 @@ class TestPrimeCache(TestCase):
             next(it)
         with self.assertRaises(StopIteration):
             next(it)
+
+        self.assertEqual(cache[-1], 7)
 
 
 class TestSieve(TestCase):
