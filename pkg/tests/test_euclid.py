@@ -15,6 +15,7 @@ from homework.euclid import (
     ext_euclid_magic_index,
     ext_euclid_full_columns,
     ext_euclid_full_table,
+    PseudoTable,
 )
 
 
@@ -210,3 +211,45 @@ class TestManualDivmod(unittest.TestCase):
             manual_divmod(3, -2)
         with self.assertRaises(ZeroDivisionError):
             manual_divmod(3, 0)
+
+
+class TestPseudoTable(unittest.TestCase):
+    """Quick tests for the PseudoTable class and its friends.
+
+    These aren't near comprehensive, which is fine as long as they aren't used
+    in any primary implementations.
+    """
+    def test_basic(self):
+        table = PseudoTable([t1 := 35, t2 := 46], maxlen=2)
+        i = table.i
+        self.assertEqual(table[i-2], t1)
+        self.assertEqual(table[i-1], t2)
+        self.assertRaises(IndexError, lambda: table[i-3])
+
+        self.assertRaises(ValueError, lambda: table[0])
+        self.assertRaises(ValueError, lambda: table[-1])
+        self.assertRaises(ValueError, lambda: table[i])
+
+        table[i] = t3 = 57
+        self.assertRaises(ValueError, lambda: table[i])
+        self.assertEqual(table[i-1], t3)
+        self.assertEqual(table[i-2], t2)
+        self.assertRaises(IndexError, lambda: table[i-3])
+
+        with self.assertRaises(ValueError):
+            table[0] = 1
+        with self.assertRaises(ValueError):
+            table[i-1] = 1
+        with self.assertRaises(ValueError):
+            table[i-2] = 1
+
+    def test_index(self):
+        i = PseudoTable.i
+        self.assertEqual((i-1).offset, -1)
+        self.assertRaises(ValueError, lambda: i+0)
+        self.assertRaises(ValueError, lambda: i+1)
+
+    def test_repr(self):
+        table = PseudoTable([7, 3], maxlen=2)
+        self.assertEqual(repr(table), 'PseudoTable([7, 3], maxlen=2)')
+        self.assertEqual(repr(table.i - 1), 'PseudoIndex-1')

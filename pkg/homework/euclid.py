@@ -315,7 +315,7 @@ def ext_euclid_full_columns(m: int, n: int, *,
 type IntType[T] = Callable[[int], T]
 
 
-class PseudoIndexMeta(type):  # pragma: no cover
+class PseudoIndexMeta(type):
     """Metaclass for classes instantiable using + and -
     """
     def __new__(cls, name, bases, dict_):
@@ -342,7 +342,7 @@ class PseudoIndex(metaclass=PseudoIndexMeta):
         return f'{type(self).__name__}{self.offset:+}'
 
 
-class PseudoTable:  # pragma: no cover
+class PseudoTable:
     """A weird view of the last rows of a table columns.
 
     Supports indexing via offsets from PseudoTable.i, and appending
