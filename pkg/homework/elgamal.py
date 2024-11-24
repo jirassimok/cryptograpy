@@ -2,6 +2,7 @@ from typing import NamedTuple
 
 from .fastexp import fastexp as _fastexp
 from .homework4 import bsgs_log as _bsgs_log
+from .euclid import ext_euclid as ext_euclid
 
 
 # Always use non-verbose functions here.
@@ -12,6 +13,10 @@ def fastexp(base: int, exp: int, modulus: int | None = None) -> int:
 
 def bsgs_log(x: int, base: int, modulus: int):
     return _bsgs_log(x, base, modulus, verbose=False)
+
+
+def inverse(n: int, modulus: int):
+    return ext_euclid(modulus, n, verbose=False)[-1] % modulus
 
 
 class Key(NamedTuple):
@@ -39,7 +44,7 @@ class User:
 
     def decrypt(self, sender_base_to_secret, ciphertext):
         p = self.prime
-        b_to_s_inv = fastexp(sender_base_to_secret, p - 2, p)
+        b_to_s_inv = inverse(sender_base_to_secret, p)
         b_to_both_inv = fastexp(b_to_s_inv, self._secret, p)
         return b_to_both_inv * ciphertext % p
 
