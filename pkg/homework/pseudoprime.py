@@ -21,29 +21,6 @@ def fastexp(base: int, exp: int, modulus: int):
         return r
 
 
-def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
-                     verbose: Verbosity = None) -> bool:
-    print = printer(is_verbose(verbose))
-
-    bs = fastexp(b, m, n)
-    print(f'b₀ = {bs} = {b}{supstr(m)} % {n}')
-
-    if bs == 1 or bs == -1:
-        return True
-
-    for s in range(1, r):
-        last = bs
-        bs = fastexp(bs, 2, n)
-        print(s)
-        print(f'b{substr(s)} = {bs} = {last}² % {n}')
-        if bs == -1:
-            return True
-        elif bs == 1:
-            return False
-    else:
-        return False
-
-
 def strong_prime_test(n: int, bases: Iterable[int], /,
                       *, verbose: Verbosity = None):
     print = printer(is_verbose(verbose))
@@ -71,3 +48,24 @@ def strong_prime_test(n: int, bases: Iterable[int], /,
         return True
 
 
+def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
+                     verbose: Verbosity = None) -> bool:
+    print = printer(is_verbose(verbose))
+
+    bs = fastexp(b, m, n)
+    print(f'b₀ = {bs} = {b}{supstr(m)} % {n}')
+
+    if bs == 1 or bs == -1:
+        return True
+
+    for s in range(1, r):
+        last = bs
+        bs = fastexp(bs, 2, n)
+        print(s)
+        print(f'b{substr(s)} = {bs} = {last}² % {n}')
+        if bs == -1:
+            return True
+        elif bs == 1:
+            return False
+    else:
+        return False
