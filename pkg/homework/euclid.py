@@ -13,6 +13,7 @@ from .util import (alternate_impl, copy_callable_type, cr, Verbosity,
 
 __all__ = [
     'euclid',
+    'euclid_recursive',
     'ext_euclid',
     'ext_euclid_magic_index',
     'ext_euclid_full_table',
@@ -73,7 +74,7 @@ def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
 
 @recursive_logging
 @check_signs
-def euclid(m: int, n: int) -> int:
+def euclid_recursive(m: int, n: int) -> int:
     # # (sorting args not actually necessary)
     # if m < n:
     #     m, n = n, m
@@ -82,11 +83,11 @@ def euclid(m: int, n: int) -> int:
     q, r = divmod(m, n)
     if r == 0:
         return n
-    return euclid(n, r)
+    return euclid_recursive(n, r)
 
 
 @check_signs
-def euclid2(m: int, n: int, *, verbose:Verbosity=None) -> int:
+def euclid(m: int, n: int, *, verbose:Verbosity=None) -> int:
     if is_verbose(verbose):
         if m == 0:
             def print_eqn():

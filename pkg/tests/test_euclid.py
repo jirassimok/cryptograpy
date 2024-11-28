@@ -11,7 +11,7 @@ from homework.euclid import (
     # These are the functions tested in this file.
     divmod as manual_divmod,
     euclid,
-    euclid2,
+    euclid_recursive,
     ext_euclid,
     ext_euclid_magic_index,
     ext_euclid_full_columns,
@@ -125,11 +125,11 @@ class TestEuclid(unittest.TestCase):
                     raise TypeError('invalid params')
 
 
-class TestEuclid2(TestEuclid):
-    gcd_function = staticmethod(euclid2)
+class TestEuclidRecursive(TestEuclid):
+    gcd_function = staticmethod(euclid_recursive)
 
 
-class TestExtEuclid(TestEuclid2):
+class TestExtEuclid(TestEuclid):
     @staticmethod
     def ext_euclid_function(a: int, b: int, /) -> tuple[int, int, int]:
         return ext_euclid(a, b)
@@ -167,9 +167,6 @@ class TestExtEuclid(TestEuclid2):
                 gcd, s, t = self.ext_euclid_function(a, b)
                 self.assertEqual(s*a + b*t, gcd)
 
-
-# Something might be wrong here: these don't seem to actually call the
-# functions they are supposed to (but TestEuclid2 does, somehow).
 
 class TestExtEuclid2(TestExtEuclid):
     ext_euclid_function = staticmethod(ext_euclid_magic_index)
