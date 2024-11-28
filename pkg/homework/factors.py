@@ -16,7 +16,7 @@ def _sn_factorize(n):
 
 
 @alternate_impl(USE_SYMPY, _sn_factorize)
-def factorize(n):
+def factorize(n, /):
     """Get prime factorization of n.
 
     Returns a Counter mapping factors to their
@@ -29,7 +29,7 @@ def factorize(n):
 
 
 # There's an itertools recipe for totient that is probably more efficient.
-def totient(n):
+def totient(n, /):
     if is_prime(n):
         return n - 1
     f = factorize(n)
@@ -96,7 +96,7 @@ class Factors(Counter):
         super().__init__(iterable, **k)
 
     @classmethod
-    def of(cls, n):
+    def of(cls, n, /):
         if n == 0:
             raise ValueError('factor 0 is not prime')
         factors = cls()
