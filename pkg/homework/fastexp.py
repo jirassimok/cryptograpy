@@ -11,9 +11,27 @@ from .util import is_verbose, Verbosity
 
 def fastexp(base: int, exp: int, modulus: int | None = None,
             *, verbose: Verbosity = None) -> int:
-    """Compute x**e.
+    """Find base**exp % modulus using exponentiation by squaring.
+
+    Parameters
+    ----------
+    base : int
+        The number to exponentiate.
+    exp : int
+        The power to exponentiate by.
+    modulus : int, optional
+        If given, exponentiate mod this number. Otherwise, perform non-modular
+        exponentiation.
+
+    Keyword Parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
     """
     if is_verbose(verbose):
+        # So much setup goes into making fastexp verbose that I put it in a
+        # separate function entirely.
         return verbose_fastexp(base, exp, modulus)
 
     if exp < 0:
@@ -37,7 +55,9 @@ def fastexp(base: int, exp: int, modulus: int | None = None,
 
 
 def verbose_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
-    """Compute x**e.
+    """Find base**exp % modulus.
+
+    Same as fastexp(base, exp, modulus), but is automatically verbose.
     """
     if exp < 0:
         raise ValueError(f'exponent {exp} < 0')
@@ -177,6 +197,7 @@ def verbose2_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
 ## Variants
 
 def slowexp(base: int, exp: int, modulus: int | None = None):
+    """Find base**exp % modulus by repeated multiplication."""
     if exp < 0:
         raise ValueError(f'exponent {exp} < 0')
     elif modulus == 0:
@@ -193,6 +214,11 @@ def slowexp(base: int, exp: int, modulus: int | None = None):
 def fastexp_recursive(base: int,
                       exp: int,
                       mod: int | None = None):
+    """Find base**exp % modulus using exponentiation by squaring.
+
+    Like fastexp(base, exp, modulus), but has no verbose option, and is
+    implemented recursively.
+    """
     if exp < 0:
         raise ValueError(f'exponent {exp} < 0')
     elif mod == 0:
@@ -220,8 +246,9 @@ def fastexp_recursive(base: int,
 
 # Non-branching version (well, it still branches for the modulus)
 def fastexp2(x: int, exp: int, m: int | None = None) -> int:
-    """
-    m must be positive.
+    """Find base**exp % modulus using exponentiation by squaring.
+
+    Like fastexp(base, exp, m), but implemented slightly differently.
     """
     if exp < 0:
         raise ValueError(f'exponent {exp} < 0')
