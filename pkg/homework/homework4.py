@@ -44,6 +44,7 @@ def primitive_root(p, *,
         return 3
 
     if not nocheck:
+        # TODO: Use a faster prime test here.
         # Reject all the numbers without primitive roots
         fs = factorize(p)
         if not (len(fs) == 1
@@ -97,14 +98,13 @@ def primitive_root(p, *,
     assert False, f"unreachable: primitive roots mod {p} should exist"
 
 
-# Extra. I also made a failed attempt at all_primitive_roots.
+# TODO: Use faster factorization
 def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
     """Check if b is a primitive root of p.
 
     If given, factors should be an iterable
     of the unique prime factors of p - 1.
     """
-    # TODO: Test this.
     # TODO: Can I just substitute totient() and use this for non-primes?
     #       If not, I could check for primitive-rootable-numbers.
     if not is_prime(p):
@@ -125,7 +125,7 @@ def bsgs_log(x: int, base: int, modulus: int, *,
              verbose: Verbosity = False) -> int:
     """Compute discrete log of x with the given base and modulus.
     """
-    print = printer(verbose)
+    print = printer(is_verbose(verbose))
     if is_verbose(verbose):
         def printrow():
             print(f'{k:>{_width}}\t{giant_acc:>3}\t{baby_acc:>3}')
