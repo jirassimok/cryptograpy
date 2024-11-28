@@ -38,7 +38,7 @@ If MANUAL_DIVMOD is True, this must be false.
 
 @copy_callable_type(builtins.divmod)
 @alternate_impl(MANUAL_DIVMOD, False, builtins.divmod)
-def divmod(dividend: int, divisor: int) -> tuple[int, int]:
+def divmod(dividend: int, divisor: int, /) -> tuple[int, int]:
     # Manual divmod is not strictly equivalent to builtin divmod
     if dividend < 0 or divisor < 0:
         raise ValueError('divmod requires non-negative arguments')
@@ -74,7 +74,7 @@ def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
 
 @recursive_logging
 @check_signs
-def euclid_recursive(m: int, n: int) -> int:
+def euclid_recursive(m: int, n: int, /) -> int:
     # # (sorting args not actually necessary)
     # if m < n:
     #     m, n = n, m
@@ -87,7 +87,7 @@ def euclid_recursive(m: int, n: int) -> int:
 
 
 @check_signs
-def euclid(m: int, n: int, *, verbose:Verbosity=None) -> int:
+def euclid(m: int, n: int, /, *, verbose:Verbosity=None) -> int:
     if is_verbose(verbose):
         if m == 0:
             def print_eqn():
@@ -128,7 +128,7 @@ def euclid(m: int, n: int, *, verbose:Verbosity=None) -> int:
 ## Extended Euclidean Algorithm
 
 @check_signs
-def ext_euclid(m: int, n: int, *,
+def ext_euclid(m: int, n: int, /, *,
                verbose:Verbosity=None) -> tuple[int, int, int]:
     """Perform the Extended Euclidean Algorithm to find gcd and coefficients.
 
@@ -237,7 +237,7 @@ def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
 ## Extended Euclidean Algorithm variant implementations
 
 @check_signs
-def ext_euclid_magic_index(m: int, n: int, *,
+def ext_euclid_magic_index(m: int, n: int, /, *,
                            verbose:Verbosity=None) -> tuple[int, int, int]:
     """Variant that uses the PseudoTables to pretend its using a full table.
     """
@@ -266,7 +266,7 @@ def ext_euclid_magic_index(m: int, n: int, *,
 
 
 @check_signs
-def ext_euclid_full_table(m: int, n: int, *,
+def ext_euclid_full_table(m: int, n: int, /, *,
                           verbose:Verbosity=None) -> tuple[int, int, int]:
     """Variant that stores all intermediate variables in a full table.
     """
@@ -290,7 +290,7 @@ def ext_euclid_full_table(m: int, n: int, *,
 
 
 @check_signs
-def ext_euclid_full_columns(m: int, n: int, *,
+def ext_euclid_full_columns(m: int, n: int, /, *,
                             verbose:Verbosity=None) -> tuple[int, int, int]:
     """Variant that stores all intermediate variables in columns.
     """
