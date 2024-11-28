@@ -22,21 +22,36 @@ def primitive_root(p, *,
                    base_tries=5,
                    try_first=(),
                    verbose_fastexp=False):
-    """Find a primitive root of p.
+    """Find a primitive root of prime p.
 
-    If smallest is false, skip all other steps except try_first,
-    searching only in ascending order. Otherwise, use the following
-    steps.
+    Always checks the numbers in try_first before any others, then performs
+    a search determined by the other keyword arguments.
 
-    First, try values in try_first, then base_tries rasndom
-    values, then all values below p. Some values may be tested
-    more than once.
+    If smallest is True (the default), the search is performed in ascending
+    order. Otherwise, try_first random values are tested to try to find a
+    random primitive root before falling back to an exhaustive search.
 
-    The final, exhaustive search will be in random order
-    for relatively small p, or ascending order for large p.
+    For small p, the fallback exhaustive search is performed in random order.
+    For large p, it is performed in ascending order.
 
-    If nocheck is true, don't check that p has primitive roots
-    before searching.
+    Parameters
+    ----------
+    p : int
+        A prime number.
+
+    Keyword Parameters
+    ------------------
+    nocheck : bool, default False
+        If true, don't check that p has primitive roots before searching.
+    try_first : iterable of int
+        If given, test these numbers first.
+    smallest : bool, default True
+        If true, search for primitive roots in ascending order, ignoring
+        all of the remaining arguments.
+    base_tries : int, default 5
+        Test this many random numbers before giving up on the random search.
+    verbose_fastexp : bool or None, default False
+        Passed to the verbose parameter of fastexp.
     """
     if p == 2:
         return 1
@@ -100,10 +115,15 @@ def primitive_root(p, *,
 
 # TODO: Use faster factorization
 def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
-    """Check if b is a primitive root of p.
+    """Check if b is a primitive root of prime p.
 
-    If given, factors should be an iterable
-    of the unique prime factors of p - 1.
+    Keyword Parameters
+    ------------------
+    factors : iterable of int, optional
+        An iterable of the unique prime factors of p - 1. If not given,
+        these will be calculated.
+    verbose_fastexp : bool or None, default False
+        Passed to the verbose parameter of fastexp.
     """
     # TODO: Can I just substitute totient() and use this for non-primes?
     #       If not, I could check for primitive-rootable-numbers.
@@ -123,7 +143,13 @@ def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
 
 def bsgs_log(x: int, base: int, modulus: int, *,
              verbose: Verbosity = False) -> int:
-    """Compute discrete log of x with the given base and modulus.
+    """Compute the discrete log of x with the given base and modulus.
+
+    Keyword Parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
     """
     print = printer(is_verbose(verbose))
     if is_verbose(verbose):
