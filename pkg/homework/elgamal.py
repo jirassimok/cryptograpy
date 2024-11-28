@@ -1,23 +1,13 @@
 from typing import NamedTuple
 
-from .fastexp import fastexp as _fastexp
-from .homework4 import bsgs_log as _bsgs_log
-from .euclid import ext_euclid as ext_euclid
-
-
-# Always use non-verbose functions here.
-
-def fastexp(base: int, exp: int, modulus: int | None = None) -> int:
-    return _fastexp(base, exp, modulus, verbose=False)
-
-
-def bsgs_log(x: int, base: int, modulus: int):
-    return _bsgs_log(x, base, modulus, verbose=False)
+from .fastexp import _silent_fastexp as fastexp
+from .homework4 import _silent_bsgs_log as bsgs_log
+from .euclid import _silent_ext_euclid as ext_euclid
 
 
 def inverse(n: int, modulus: int):
     """Compute modular inverse using the extended Euclidean algorithm."""
-    return ext_euclid(modulus, n, verbose=False)[-1] % modulus
+    return ext_euclid(modulus, n)[-1] % modulus
 
 
 class Key(NamedTuple):

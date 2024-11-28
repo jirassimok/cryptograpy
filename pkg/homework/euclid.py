@@ -136,6 +136,10 @@ def euclid(m: int, n: int, /, *, verbose:Verbosity=None) -> int:
     return b
 
 
+def _silent_euclid(m: int, n: int, /) -> int:
+    return euclid(m, n, verbose=False)
+
+
 ## Extended Euclidean Algorithm
 
 @check_signs
@@ -166,6 +170,11 @@ def ext_euclid(m: int, n: int, /, *,
         t.append(t[-2] - q * t[-1])
         print_eqn(a, b, q, r, s, t)
     return b, s[-2], t[-2]
+
+
+def _silent_ext_euclid(m: int, n: int, /) -> tuple[int, int, int]:
+    return ext_euclid(m, n, verbose=False)
+
 
 # Extremely busy function to prepare a nice printer for the extended algorithm.
 def _ext_printer(m: int, n: int, verbose: Verbosity

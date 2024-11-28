@@ -54,6 +54,10 @@ def fastexp(base: int, exp: int, modulus: int | None = None,
     return acc
 
 
+def _silent_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
+    return fastexp(base, exp, modulus, verbose=False)
+
+
 def verbose_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
     """Find base**exp % modulus.
 

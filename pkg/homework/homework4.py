@@ -216,3 +216,7 @@ def bsgs_log(x: int, base: int, modulus: int, *,
     exp = i * bound + j
     print(f'i×m + j = {i}×{bound} + {j} = {exp} ≡ {exp % order} mod {order}')
     return exp % order
+
+
+def _silent_bsgs_log(x: int, base: int, modulus: int) -> int:
+    return bsgs_log(x, base, modulus, verbose=False)
