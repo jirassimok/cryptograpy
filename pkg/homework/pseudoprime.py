@@ -12,7 +12,11 @@ from .util import is_verbose, printer, substr, supstr, Verbosity
 
 
 def fastexp(base: int, exp: int, modulus: int):
-    """fastexp, but returns -1 instead of modulus-1
+    """Modular exponentiation, with special-casing for Fermat's little theorem.
+
+    Identical to fastexp.fastexp(base, exp, modulus), but is never verbose,
+    and when that function would return 1 less than the modulus, this one
+    returns -1 instead.
     """
     r = _fastexp(base, exp, modulus, verbose=False)
     if r == modulus - 1:
@@ -23,6 +27,22 @@ def fastexp(base: int, exp: int, modulus: int):
 
 def strong_prime_test(n: int, bases: Iterable[int], /,
                       *, verbose: Verbosity = None):
+    """Miller-Rabin primality test.
+
+    Parameters
+    ----------
+    n : int
+        The number to test.
+    bases : iterable of int
+        The bases to test against.
+
+    Keyword Parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the arguments, the steps of each base's test, and the
+        results for each tested base.
+    """
     print = printer(is_verbose(verbose))
 
     if n < 2:
@@ -50,6 +70,22 @@ def strong_prime_test(n: int, bases: Iterable[int], /,
 
 def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
                      verbose: Verbosity = None) -> bool:
+    """Partial Miller-Rabin primality test.
+
+    Parameters
+    ----------
+    n : int
+        The number to test.
+    r : int
+        The number of times 2 divides n - 1.
+    m : int
+        The largest factor of n - 1 with no even factors (i.e. (n-1)/(2**r)).
+    b : int
+        The base to test.
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the arguments, and the steps of the test.
+    """
     print = printer(is_verbose(verbose))
 
     bs = fastexp(b, m, n)
