@@ -21,7 +21,7 @@ def fastexp(base: int, exp: int, modulus: int):
         return r
 
 
-def test_prime_base(n: int, /, *, m: int, r: int, b: int,
+def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
                      verbose: Verbosity = None) -> bool:
     print = printer(is_verbose(verbose))
 
@@ -63,7 +63,7 @@ def strong_prime_test(n: int, bases: Iterable[int], /,
 
     print(f'n = {n} = 2^{r} * {m}, bases={bases}')
     for b in bases:
-        if not test_prime_base(n, m=m, r=r, b=b, verbose=verbose):
+        if not _test_prime_base(n, m=m, r=r, b=b, verbose=verbose):
             print('not prime to base', b)
             return False
         print('prime to base', b)
@@ -71,6 +71,3 @@ def strong_prime_test(n: int, bases: Iterable[int], /,
         return True
 
 
-# def check(n, b):
-#     r, m = _get_rm(n)
-#     return check_prime_base(n=n, m=m, r=r, b=b)
