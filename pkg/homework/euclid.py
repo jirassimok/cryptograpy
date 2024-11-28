@@ -29,6 +29,7 @@ MANUAL_DIVMOD: ContextVar[bool] = ContextVar('MANUAL_DIVMOD', default=False)
 """Whether to avoid reliance on // and % (and divmod).
 """
 
+# TODO: Make this a contextvar, or just make it a non-option (always on).
 ALLOW_NEGATIVE: bool = False
 """Whether to allow negative inputs.
 
@@ -75,9 +76,11 @@ def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
 @recursive_logging
 @check_signs
 def euclid_recursive(m: int, n: int, /) -> int:
-    # # (sorting args not actually necessary)
-    # if m < n:
-    #     m, n = n, m
+    """Find the GCD of m and n using the Euclidean algorithm.
+
+    If util.VERBOSE is true, prints the arguments of each recursive call
+    to the function.
+    """
     if m == 0 or n == 0:
         return m or n
     q, r = divmod(m, n)
@@ -88,6 +91,14 @@ def euclid_recursive(m: int, n: int, /) -> int:
 
 @check_signs
 def euclid(m: int, n: int, /, *, verbose:Verbosity=None) -> int:
+    """Find the GCD of m and n using the Euclidean algorithm.
+
+    Keyword parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
+    """
     if is_verbose(verbose):
         if m == 0:
             def print_eqn():
@@ -130,11 +141,16 @@ def euclid(m: int, n: int, /, *, verbose:Verbosity=None) -> int:
 @check_signs
 def ext_euclid(m: int, n: int, /, *,
                verbose:Verbosity=None) -> tuple[int, int, int]:
-    """Perform the Extended Euclidean Algorithm to find gcd and coefficients.
+    """Find GCD and coefficients using the Extended Euclidean algorithm.
 
-    Returns g, s, t such that s*m + t*n = g.
+    Given m and n, returns g, s, and t, such that g is the greatest common
+    divisor of m and n, and m*s + n*t == g.
 
-    Does not behave well with m or n equal to 0.
+    Keyword parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
     """
     print_eqn = _ext_printer(m, n, verbose)
 
@@ -239,7 +255,19 @@ def _verbose_ext_printer(verbose: Verbosity, m: int, n: int
 @check_signs
 def ext_euclid_magic_index(m: int, n: int, /, *,
                            verbose:Verbosity=None) -> tuple[int, int, int]:
-    """Variant that uses the PseudoTables to pretend its using a full table.
+    """Find GCD and coefficients using the Extended Euclidean algorithm.
+
+    Given m and n, returns g, s, and t, such that g is the greatest common
+    divisor of m and n, and m*s + n*t == g.
+
+    This implementation uses a custom class to track the algorithms steps
+    in a way that makes the algorithm's main loop easy to understand.
+
+    Keyword parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
     """
     print_eqn = _ext_printer(m, n, verbose)
 
@@ -268,7 +296,20 @@ def ext_euclid_magic_index(m: int, n: int, /, *,
 @check_signs
 def ext_euclid_full_table(m: int, n: int, /, *,
                           verbose:Verbosity=None) -> tuple[int, int, int]:
-    """Variant that stores all intermediate variables in a full table.
+    """Find GCD and coefficients using the Extended Euclidean algorithm.
+
+    Given m and n, returns g, s, and t, such that g is the greatest common
+    divisor of m and n, and m*s + n*t == g.
+
+    This implementation stores the values computed at each step in a single
+    list for the duration of the algorithm. This is the least-aesthetically-
+    pleasing implementation to read from this module.
+
+    Keyword parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
     """
     print_eqn = _ext_printer(m, n, verbose)
 
@@ -292,7 +333,21 @@ def ext_euclid_full_table(m: int, n: int, /, *,
 @check_signs
 def ext_euclid_full_columns(m: int, n: int, /, *,
                             verbose:Verbosity=None) -> tuple[int, int, int]:
-    """Variant that stores all intermediate variables in columns.
+    """Find GCD and coefficients using the Extended Euclidean algorithm.
+
+    Given m and n, returns g, s, and t, such that g is the greatest common
+    divisor of m and n, and m*s + n*t == g.
+
+    This implementation stores all of the computed values for each variable
+    used in the algorithm as a separate list, replicating the excessive space
+    usage of ext_euclid_full_table, but without sacrificing readability quite
+    as much, in my opinion.
+
+    Keyword parameters
+    ------------------
+    verbose : bool, optional
+        If false, print nothing. If true, or if not given and util.VERBOSE
+        is true, print the steps of the algorithm in a table-like format.
     """
     print_eqn = _ext_printer(m, n, verbose)
 
