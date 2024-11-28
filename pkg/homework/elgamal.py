@@ -25,7 +25,7 @@ class Key(NamedTuple):
     base_to_secret_power: int
 
 
-class User:
+class ElGamal:
     def __init__(self, prime, *, base, secret):
         """Base and secret are currently required because I don't have randoms.
         """
