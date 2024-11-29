@@ -1,10 +1,15 @@
 # -*- flycheck-checker: python-pyright; -*-
 from __future__ import annotations
+from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator
 from contextvars import ContextVar
 from functools import wraps
+from itertools import count
 from operator import itemgetter
 from typing import (Any, Callable, cast, Never, overload, Protocol,
                     TYPE_CHECKING)
+
+from .integer_types import Bit as _Bit
 
 
 ## Settings
@@ -216,3 +221,84 @@ def recursive_logging[**Args, R](arg: Callable[Args, R] | str | None = None,
                 print(args)
             return arg(*args, **kwargs)
         return rec_wrapper
+
+
+## BitIterator
+
+type Bit = bool | int | _Bit
+"""A type that can represent a bit.
+
+The specific details of this type may change, but these are guaranteed:
+- It can be constructed by asbit(int). If the argument is 1 or 0, it will
+  have the appropriate value.
+- Math between bits and integers works as expected for integers.
+- Operations between bits may or may not return bits (this may change in the
+  future).
+"""
+
+def asbit(b: Bit, /) -> Bit:
+    """Convert a value of a bit-compatible type to an actual Bit."""
+    if isinstance(b, (_Bit, bool)):
+        return b
+    elif isinstance(b, int):
+        return b % 2
+    else:
+        return int(b) % 2
+
+
+def pack_bits(bits: Iterable[Bit]) -> int:
+    """Pack bits into an int, from least to most significant."""
+    # Uses lowest bits if the inputs aren't really bits.
+    return sum(1 << i for bit, i in zip(bits, count()) if bit & 1)
+
+
+class BitIterator(ABC, Iterator[Bit]):
+    """An iterator over bits that can be used to produce bytes or ints.
+    """
+    @abstractmethod
+    def __next__(self) -> Bit:
+        ...
+
+    def next_bit(self) -> Bit:
+        """Generate a pseudorandom bit."""
+        return next(self)
+
+    def next_byte(self) -> int:
+        """Generate a pseudorandom byte."""
+        return self.next_int(8)
+
+    def next_int(self, nbits: int) -> int:
+        """Generate a pseudorandom nbits-bit integer."""
+        return pack_bits(next(self) for _ in range(nbits))
+
+    def __iter__(self) -> Iterator[Bit]:
+        return self
+
+    def iter_bits(self) -> Iterator[Bit]:
+        """Generate bits."""
+        return iter(self)
+
+    def iter_bytes(self) -> Iterator[int]:
+        """Generate bytes.
+
+        The generator shares the state of the PRNG.
+        """
+        yield from self.iter_ints(8)
+
+    def iter_ints(self, nbits: int) -> Iterator[int]:
+        """Generate nbits-bit integers.
+
+        The generator shares the state of the PRNG.
+        """
+        # Should be while True: yield self.next_int(nbits)
+        for bits in zip(*([self] * nbits)):
+            yield pack_bits(bits)
+
+
+class WrappingBitIterator(BitIterator):
+    """A simple BitIterator that wraps a generator."""
+    def __init__(self, generator: Iterator[Bit], /):
+        self._generator = generator
+
+    def __next__(self) -> Bit:
+        return next(self._generator)
