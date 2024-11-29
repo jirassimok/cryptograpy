@@ -6,6 +6,7 @@ from contextvars import ContextVar
 from functools import wraps
 from itertools import count
 from operator import itemgetter
+import random
 from typing import (Any, Callable, cast, Never, overload, Protocol,
                     TYPE_CHECKING)
 
@@ -301,3 +302,31 @@ class WrappingBitIterator(BitIterator):
 
     def __next__(self) -> Bit:
         return next(self._generator)
+
+
+class RandomBitIterator(BitIterator):
+    """A BitIterator based on the system random module.
+
+    This iterator is unsuitable for cryptographic use.
+    """
+    def __init__(self, seed=None):
+        if seed is None:
+            self._random = random
+        else:
+            self._random = random.Random(seed)
+
+    def __next__(self) -> Bit:
+        return asbit(self._random.getrandbits(1))
+
+    def next_byte(self) -> int:
+        return self._random.getrandbits(8)
+
+    def next_int(self, nbits: int) -> int:
+        return self._random.getrandbits(nbits)
+
+
+class SystemRandomBitIterator(RandomBitIterator):
+    """A RandomBitIterator based on random.SystemRandom.
+    """
+    def __init__(self):
+        self._random = random.SystemRandom()
