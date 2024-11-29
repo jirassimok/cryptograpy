@@ -290,9 +290,8 @@ class BitIterator(ABC, Iterator[Bit]):
 
         The generator shares the state of the PRNG.
         """
-        # Should be while True: yield self.next_int(nbits)
-        for bits in zip(*([self] * nbits)):
-            yield pack_bits(bits)
+        while True:
+            yield self.next_int(nbits)
 
 
 class WrappingBitIterator(BitIterator):
