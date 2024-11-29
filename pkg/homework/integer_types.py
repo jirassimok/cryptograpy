@@ -519,8 +519,8 @@ class Integer(BaseInt):
 class Bit(numbers.Integral):
     """A single bit that acts like an integer.
 
-    Most operators return bits regardless of the other argument's type
-    (though a few do not, notably when the bit is the right-hand argument).
+    Operations between bits also return bits. In operations with other types,
+    bits act as integers.
     """
     value: int
 
@@ -537,28 +537,10 @@ class Bit(numbers.Integral):
             if isinstance(other, cls):
                 return cls(opfn(self.value, other.value))
             elif isinstance(other, numbers.Integral):
-                return cls(opfn(self.value, other))
+                return opfn(self.value, other)
             else:
                 return NotImplemented
 
-        def rop(self, other):
-            cls = type(self)
-            if isinstance(other, cls):
-                return cls(opfn(other.value, self.value))
-            elif isinstance(other, numbers.Integral):
-                return cls(opfn(other, self.value))
-            else:
-                return NotImplemented
-
-        op.__name__ = f"__{opfn.__name__.strip('_')}__"
-        op.__qualname__ = f"Bit.__{opfn.__name__.strip('_')}__"
-        rop.__name__ = f"__r{opfn.__name__.strip('_')}__"
-        rop.__qualname__ = f"Bit.__r{opfn.__name__.strip('_')}__"
-        return op, rop
-
-    @staticmethod
-    def _left_operator(opfn, _operator=_operator):
-        "Operator that wraps only in the left version."
         def rop(self, other):
             cls = type(self)
             if isinstance(other, cls):
@@ -568,9 +550,11 @@ class Bit(numbers.Integral):
             else:
                 return NotImplemented
 
+        op.__name__ = f"__{opfn.__name__.strip('_')}__"
+        op.__qualname__ = f"Bit.__{opfn.__name__.strip('_')}__"
         rop.__name__ = f"__r{opfn.__name__.strip('_')}__"
         rop.__qualname__ = f"Bit.__r{opfn.__name__.strip('_')}__"
-        return _operator(opfn)[0], rop
+        return op, rop
 
     @staticmethod
     def _comparator(opfn):
@@ -606,9 +590,9 @@ class Bit(numbers.Integral):
     __sub__, __rsub__ = _operator(operator.sub)
     __mul__, __rmul__ = _operator(operator.mul)
 
-    __truediv__, __rtruediv__ = _left_operator(operator.truediv)
-    __floordiv__, __rfloordiv__ = _left_operator(operator.floordiv)
-    __mod__, __rmod__ = _left_operator(operator.mod)
+    __truediv__, __rtruediv__ = _operator(operator.truediv)
+    __floordiv__, __rfloordiv__ = _operator(operator.floordiv)
+    __mod__, __rmod__ = _operator(operator.mod)
 
     def __pow__(self, other, mod=None):
         cls = type(self)
@@ -653,4 +637,4 @@ class Bit(numbers.Integral):
     def __round__(self, ndigits=None):
         return self
 
-    del _operator, _left_operator, _comparator, _identity
+    del _operator, _comparator, _identity
