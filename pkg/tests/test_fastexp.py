@@ -90,6 +90,26 @@ def small_cases() -> Iterator[CaseArgs]:
     yield ((3, 16), 43046721, 'no modulus')
 
 
+# TODO: Genericize this and TestEuclid.filter_args into tests.util
+def filter_params(params: Iterable[CaseArgs]
+                  ) -> Iterator[tuple[ExpArgs, int]
+                                | tuple[ExpArgs, int, str]]:
+    for case_args in params:
+        # Have to manually unpack by slice to get good typing
+        args, rest = case_args[0], case_args[1:]
+        match rest:
+            case []:
+                yield args, pow(*args)
+            case [int() as e]:
+                yield args, e
+            case [str() as label]:
+                yield args, pow(*args), label
+            case [int() as e, str() as label]:
+                yield args, e, label
+            case _:
+                raise TypeError('invalid params')
+
+
 ## Test classes
 
 class TestFastexp(unittest.TestCase):
@@ -131,20 +151,7 @@ class TestFastexp(unittest.TestCase):
                                         | tuple[ExpArgs, int, str]]:
         """Return the basic test parameters with defaults filled in.
         """
-        for case_args in self._params:
-            # Have to manually unpack by slice to get good typing
-            args, rest = case_args[0], case_args[1:]
-            match rest:
-                case []:
-                    yield args, pow(*args)
-                case [int() as e]:
-                    yield args, e
-                case [str() as label]:
-                    yield args, pow(*args), label
-                case [int() as e, str() as label]:
-                    yield args, e, label
-                case _:
-                    raise TypeError('invalid params')
+        return filter_params(self._params)
 
 
 # I used a separate implementation for the verbose version,
