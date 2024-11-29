@@ -515,17 +515,26 @@ class Integer(BaseInt):
 
 ## Bit class
 
-@dataclass(frozen=True)
 class Bit(numbers.Integral):
     """A single bit that acts like an integer.
 
     Operations between bits also return bits. In operations with other types,
     bits act as integers.
     """
-    value: int
+    # The type of value is like that because int is not a subclass of
+    # numbers.Integral, in the eyes of the type checkers.
+    def __init__(self, value: int | numbers.Integral):
+        self._value: int
+        if isinstance(value, type(self)):
+            self._value = value.value
+        elif isinstance(value, int):
+            self._value = value % 2
+        else:
+            self._value = int(value) % 2
 
-    def __post_init__(self):
-        object.__setattr__(self, 'value', self.value % 2)
+    @property
+    def value(self) -> int:
+        return self._value
 
     def __repr__(self):
         return f'{type(self).__name__}({self.value})'
