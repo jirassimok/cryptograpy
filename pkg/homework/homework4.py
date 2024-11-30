@@ -145,6 +145,8 @@ def bsgs_log(x: int, base: int, modulus: int, *,
              verbose: Verbosity = False) -> int:
     """Compute the discrete log of x with the given base and modulus.
 
+    Note that the modulus must be prime.
+
     Keyword Parameters
     ------------------
     verbose : bool, optional
