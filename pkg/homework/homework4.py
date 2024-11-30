@@ -138,7 +138,7 @@ def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
 ## Baby-step Giant-step algorithm
 
 def bsgs_log(x: int, base: int, modulus: int, *,
-             verbose: Verbosity = False) -> int:
+             verbose: Verbosity = None) -> int:
     """Compute the discrete log of x with the given base and modulus.
 
     Note that the modulus must be prime.
