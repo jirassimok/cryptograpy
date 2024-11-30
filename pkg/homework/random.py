@@ -86,7 +86,7 @@ class LowBitIterator(WrappingBitIterator):
     actually producing only a single bit at a time.
     """
     def __init__(self, generator: Iterator[Bit] | Iterator[int], /):
-        super().__init__(asbit(b % 2) for b in generator)
+        super().__init__(asbit(b) for b in generator)
 
 
 class HybridRandom(BitIterator, PyRandom, ABC):
@@ -152,7 +152,7 @@ def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
     def generator(s: int) -> Iterator[Bit]:
         while True:
             s = fastexp(s, 2, n)
-            yield asbit(s % 2)
+            yield asbit(s)
 
     return lambda seed: WrappingBitIterator(generator(seed))
 
@@ -197,7 +197,7 @@ class BlumBlumShub(HybridRandom):
     # The main part of the algorithm:
     def __next__(self) -> Bit:
         self._state = fastexp(self._state, 2, self.modulus)
-        return asbit(self._state & 1)
+        return asbit(self._state)
 
     # __init__ is extra large because it's not straightforward to allow
     # both (n) and (p, q) as arguments.
