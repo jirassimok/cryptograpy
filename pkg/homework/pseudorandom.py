@@ -318,6 +318,7 @@ def naor_reingold(nbits, p, q,
 
     def f(x) -> Bit:
         """The Naor-Reingold function."""
+        # zip(pairs, split_bits(x)) implicitly pads x to the length of pairs
         exp = sum(a[bit] for a, bit in zip(pairs, split_bits(x)))
         g_to_e = fastexp(square, exp, n)
         return dot(r, split_bits(g_to_e))
