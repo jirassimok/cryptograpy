@@ -1,11 +1,11 @@
 from collections.abc import Iterator
 from contextlib import redirect_stdout
 import os
+from typing import overload
 import unittest
 
 import sympy.ntheory as sn
 
-from homework.fastexp import _silent_fastexp as fastexp
 from homework.homework4 import primitive_root, is_primitive_root, bsgs_log
 import homework.util
 
@@ -134,6 +134,18 @@ class TestBsgsLog(unittest.TestCase):
     def setUp(self):
         homework.util.VERBOSE = False
 
+    @overload
+    def assertLog(self, base, mod, *, power=None): ...
+
+    @overload
+    def assertLog(self, base, mod, *, exp=None): ...
+
+    def assertLog(self, base, mod, *, exp=None, power=None):
+        # Main test function; tests bsgs_log against builtin pow.
+        if power is None:
+            power = pow(base, exp, mod)
+        self.assertEqual(power, pow(base, bsgs_log(power, base, mod), mod))
+
     def fastexp_params(self
                        ) -> Iterator[tuple[tuple[int, int, int], int]
                                      | tuple[tuple[int, int, int], int, str]]:
@@ -148,9 +160,7 @@ class TestBsgsLog(unittest.TestCase):
         """Test using the numbers from the fastexp tests."""
         for (base, _, mod), power, *msg in self.fastexp_params():
             with self.subTest(*msg, args=(power, base, mod)):
-                self.assertEqual(power, fastexp(base,
-                                                bsgs_log(power, base, mod),
-                                                mod))
+                self.assertLog(base, mod, power=power)
 
     def test_no_log(self):
         with self.assertRaises(ValueError):
@@ -166,15 +176,11 @@ class TestBsgsLog(unittest.TestCase):
     def test_verbose(self):
         """Simple test for coverage and correctness in verbose mode."""
         # Local setup/teardown for some quick test
-        def test(base, exp, mod):
-            power = fastexp(base, exp, mod)
-            self.assertEqual(power,
-                             fastexp(base, bsgs_log(power, base, mod), mod))
         homework.util.VERBOSE = True
         try:
             with (open(os.devnull, 'w') as out,
                   redirect_stdout(out)):
-                test(47, 8, 97) # 47**8 % 97 == 1
-                test(43, 15, 127)
+                self.assertLog(47, 97, exp=8) # 47**8 % 97 == 1
+                self.assertLog(43, 127, exp=15)
         finally:
             homework.util.VERBOSE = False

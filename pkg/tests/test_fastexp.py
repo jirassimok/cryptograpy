@@ -65,6 +65,7 @@ def large_cases() -> Iterable[CaseArgs]:
     )
 
 
+# Note: small_cases is also used to test bsgs_log
 def small_cases() -> Iterator[CaseArgs]:
     """Some basic test cases for modular exponentiation.
     """
