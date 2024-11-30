@@ -32,7 +32,7 @@ def dot(v: Iterable[Bit], u: Iterable[Bit]) -> Bit:
 def split_bits(x: int) -> Iterator[Bit]:
     """Get the bits of a non-negative int, from least to most significant.
 
-    This generator will never end; it will left-pad with infinite-zeroes.
+    This generator will never end; it will left-pad with infinite zeroes.
     """
     # Actually, this works perfectly well on negative numbers. I just want
     # to detect any time a negative number somehow gets here.
