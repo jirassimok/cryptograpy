@@ -1,10 +1,18 @@
+"""
+Key features of this module:
+
+- BlumBlumShub: more complex implementation (implements random.Random)
+- NaorReingoldGenerator: core implementation of that algorithm
+- NaorReingoldRandom: wrapper around the other implementation to
+  add the random.Random interface.
+"""
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
 from itertools import count, starmap
 from operator import mul
 from random import Random as PyRandom
-from typing import overload, Self
+from typing import cast, overload, Self
 
 from .euclid import _silent_euclid as gcd
 from .fastexp import _silent_fastexp as fastexp
@@ -70,25 +78,6 @@ def randint(rng: PRNG, lo: int, hi: int, /) -> int:
     return randrange(rng, lo, hi + 1)
 
 
-class SeededPRNG(ABC):
-    """A pseudorandom number generator that can be reused with different seeds.
-    """
-    @abstractmethod
-    def _generate(self, seed: int) -> Iterator[Bit]:
-        ...
-
-    def generate(self, seed: int) -> PRNG:
-        return WrappingBitIterator(self._generate(seed))
-
-    def generate_bytes(self, seed: int) -> Iterator[int]:
-        """Generate random bytes."""
-        yield from self.generate(seed).iter_bytes()
-
-    def generate_ints(self, nbits: int, seed: int) -> Iterator[int]:
-        """Generate random nbits-bit ints."""
-        yield from self.generate(seed).iter_ints(nbits)
-
-
 class LowBitIterator(WrappingBitIterator):
     """WrappingBitIterator that specifically truncates its bits.
 
@@ -99,9 +88,38 @@ class LowBitIterator(WrappingBitIterator):
         super().__init__(asbit(b % 2) for b in generator)
 
 
-## The actual PRNGs
+class HybridRandom(BitIterator, PyRandom, ABC):
+    # Combination of BitIterator and Python's random.Random.
+    def random(self) -> float:
+        return random01(self)
 
-class BlumBlumShub(SeededPRNG):
+    def getrandbits(self, k: int) -> int:
+        return self.next_int(k)
+
+    @abstractmethod
+    def __next__(self) -> Bit:
+        ...
+
+    @abstractmethod
+    def seed(self, a=..., version=...) -> None:
+        ...
+
+    @abstractmethod
+    def getstate(self) -> RngState:  # type: ignore[override]
+        ...
+
+    @abstractmethod
+    def setstate(self, state: RngState):  # type: ignore[override]
+        ...
+
+
+class RngState:
+    pass
+
+
+## Blum-Blum-Shub
+
+class BlumBlumShub(HybridRandom):
     """Blum-Blum-Shub PRNG.
 
     Can be constructed using either n or p and q.
@@ -118,10 +136,14 @@ class BlumBlumShub(SeededPRNG):
     ----------
     n : int, optional
         The modulus for the generator. Must not be given with p or q.
+        If n is not given, p and q must be given.
     p : int, optional
         A large prime number equal to 3, mod 4. Must be given with q.
     q : int, optional
         A large prime number equal to 3, mod 4. Must be given with p.
+    seed : int, optional
+        The initial seed for the RNG. If not given, the default is a value
+        with the same bit length as n.
 
     Examples
     --------
@@ -138,16 +160,20 @@ class BlumBlumShub(SeededPRNG):
     #
     # Might've been a better idea to only allow (p, q), and not (n).
     @overload
-    def __init__(self, n: int, /, *, check_seeds: bool = ...): ...
+    def __init__(self, n: int, /, *,
+                 seed: int | None = ..., check_seeds: bool = ...): ...
 
     @overload
-    def __init__(self, /, *, n: int, check_seeds: bool = ...): ...
+    def __init__(self, /, *, n: int,
+                 seed: int | None = ..., check_seeds: bool = ...): ...
 
     @overload
-    def __init__(self, p: int, /, q: int, *, check_seeds: bool = ...): ...
+    def __init__(self, p: int, /, q: int,
+                 *, seed: int | None = ..., check_seeds: bool = ...): ...
 
     @overload
-    def __init__(self, /, *, p: int, q: int, check_seeds: bool = ...): ...
+    def __init__(self, /, *, p: int, q: int,
+                 seed: int | None = ..., check_seeds: bool = ...): ...
 
     def __init__(self,
                  n_or_p: int | None = None,
@@ -156,8 +182,9 @@ class BlumBlumShub(SeededPRNG):
                  n: int | None = None,
                  p: int | None = None,
                  q: int | None = None,
+                 seed: int | None = None,
                  check_seeds: bool = True):
-        # Normalize arguments to only n
+        # Normalize n/p/q to only n
         q = q if q_or_none is None else q_or_none
         if q is None:
             if p is not None:
@@ -179,27 +206,44 @@ class BlumBlumShub(SeededPRNG):
                 n = p * q
         del p, q, n_or_p, q_or_none
 
+        if seed is None:
+            seed = 1 << n.bit_length()
+
         self._modulus = n
+        self._state = seed
         self.check_seeds = check_seeds
 
     @property
     def modulus(self):
         return self._modulus
 
-    def _generate(self, seed: int,
-                  *, check_seed: bool | None = None) -> Iterator[Bit]:
-        check_seed = self.check_seeds if check_seed is None else check_seed
-        if check_seed and gcd(self.modulus, seed) != 1:
+    def __next__(self) -> Bit:
+        self._state = fastexp(self._state, 2, self.modulus)
+        return asbit(self._state & 1)
+
+    def seed(self, a=None, version=2) -> None:
+        if not isinstance(a, int):
+            raise TypeError(
+                f'{type(self).__name__} does not support non-int seeds')
+        elif version != 2:
+            raise ValueError(f'unsupported seed version: {version}')
+        check_seed = self.check_seeds
+        if check_seed and gcd(self.modulus, a) != 1:
             raise ValueError('illegal seed')
 
-        s, n = seed, self.modulus
-        while True:
-            s = fastexp(s, 2, n)
-            yield asbit(s % 2)
+        self._state = a % self.modulus
 
+    def getstate(self) -> RngState:  # type: ignore[override]
+        return cast(RngState, self._state)
+
+    def setstate(self, state: RngState):  # type: ignore[override]
+        self._state = cast(int, state)
+
+
+## Naor-Reingold
 
 # TODO: Rename parameter/attribute 'r'.
-class NaorReingold(BitIterator):
+class NaorReingoldGenerator(BitIterator):
     """Naor-Reingold PRNG.
 
     Can be constructed from all of its parameters via its normal constructor,
@@ -245,6 +289,16 @@ class NaorReingold(BitIterator):
     # _count : iterator of int
     #     The internal generator for arguments to the Naor-Reingold function.
 
+    def f(self, x, *, verbose: Verbosity = None) -> Bit:
+        """The Naor-Reingold function."""
+        print = printer(is_verbose(verbose))
+        exp = sum(a[bit] for a, bit in zip(self.pairs, split_bits(x)))
+        g_to_e = fastexp(self.square, exp, self.n)
+        print('exp', exp)
+        print('g^exp', g_to_e)
+        return dot(self.r, split_bits(g_to_e))
+
+    # Function that uses another PRNG to generate most of the parameters.
     @classmethod
     def from_rng(cls, nbits: int, p: int, q: int,
                  rng: PRNG | Iterator[Bit] | Iterator[int]) -> Self:
@@ -292,14 +346,12 @@ class NaorReingold(BitIterator):
             raise ValueError(f'{p} does not have {nbits} bits')
         elif q.bit_length() != nbits:
             raise ValueError(f'{q} does not have {nbits} bits')
-
         n = p * q
 
         if isinstance(pairs, Iterator):
             pairs = tuple((next(pairs), next(pairs)) for _ in range(nbits))
         else:
             pairs = tuple(pairs)
-
         for a, b in pairs:
             if not (1 <= a <= n):
                 raise ValueError(f'number {a} is not on [1, {n}]')
@@ -336,48 +388,14 @@ class NaorReingold(BitIterator):
     def r(self) -> Sequence[Bit]:
         return self._r
 
-    def f(self, x, *, verbose: Verbosity = None) -> Bit:
-        """The Naor-Reingold function."""
-        print = printer(is_verbose(verbose))
-        exp = sum(a[bit] for a, bit in zip(self.pairs, split_bits(x)))
-        print('exp', exp)
-        g_to_e = fastexp(self.square, exp, self.n)
-        print('g^exp', g_to_e)
-        return dot(self.r, split_bits(g_to_e))
-
     def __next__(self):
         return self.f(next(self._count))
 
 
-## The PRNGs, wrapped in the Python Random API
-
-class BlumBlumShubRandom(BlumBlumShub, PyRandom):
-    """An implementation of Python's Random class based on BlumBlumShub.
-
-    Does not support modifying RNG state.
-    """
-    _rng: PRNG
-
-    def __init__(self, p: int, q: int, *, seed=None):
-        super().__init__(p, q)
-        super(BlumBlumShub, self).__init__(seed)
-
-    def seed(self, a=None, version=2):
-        self._rng = self.generate(a)
-
-    getstate = None  # type: ignore  # pyright: ignore
-
-    setstate = None  # type: ignore  # pyright: ignore
-
-    def random(self):
-        return random01(self._rng)
-
-    def getrandbits(self, k):
-        return self._rng.next_int(k)
-
-
 class NaorReingoldRandom(PyRandom):
-    """An implementation of Python's Random class based on NaorReingold.
+    # Just read NaorReingoldGenerator; this is 95% just processing parameters
+    # for that class.
+    """An implementation of Python's random.Random using NaorReingoldGenerator.
 
     Does not support re-seeding the RNG.
 
@@ -385,9 +403,8 @@ class NaorReingoldRandom(PyRandom):
     """
     @classmethod
     def from_rng(cls, nbits: int, p: int, q: int,
-                 rng: PRNG | Iterator[Bit] | Iterator[int]
-                 ) -> NaorReingoldRandom:
-        return cls(NaorReingold.from_rng(nbits, p, q, rng))
+                 rng: PRNG | Iterator[Bit] | Iterator[int]) -> Self:
+        return cls(NaorReingoldRandom.from_rng(nbits, p, q, rng))
 
     @overload
     def __init__(self, nbits: int, /, p: int, q: int,
@@ -400,12 +417,12 @@ class NaorReingoldRandom(PyRandom):
                  square_root: int, r: Sequence[Bit]): ...
 
     @overload
-    def __init__(self, rng: NaorReingold, /): ...
+    def __init__(self, rng: NaorReingoldRandom, /): ...
 
     @overload
-    def __init__(self, /, *, rng: NaorReingold): ...
+    def __init__(self, /, *, rng: NaorReingoldRandom): ...
 
-    def __init__(self, nbits_or_rng: int | NaorReingold | None = None, /,
+    def __init__(self, nbits_or_rng: int | NaorReingoldRandom | None = None, /,
                  p: int | None = None,
                  q: int | None = None,
                  pairs: (Iterator[int] | Iterable[tuple[int, int]]
@@ -413,14 +430,14 @@ class NaorReingoldRandom(PyRandom):
                  square_root: int | None = None,
                  r: Sequence[Bit] | None = None,
                  nbits: int | None = None,
-                 rng: NaorReingold | None = None):
+                 rng: NaorReingoldRandom | None = None):
         if nbits is None and rng is None and nbits_or_rng is None:
             raise TypeError('must provide NaorReingold instance or args')
         elif isinstance(nbits_or_rng, int):
             if nbits is not None:
                 raise TypeError('extra nbits parameter')
             nbits = nbits_or_rng
-        elif isinstance(nbits_or_rng, NaorReingold):
+        elif isinstance(nbits_or_rng, NaorReingoldRandom):
             if rng is not None:
                 raise TypeError('extra rng parameter')
             rng = nbits_or_rng
@@ -434,7 +451,7 @@ class NaorReingoldRandom(PyRandom):
             if (p is None or q is None or pairs is None
                 or square_root is None or r is None):  # noqa:E129
                 raise TypeError('missing arguments')
-            rng = NaorReingold(nbits, p, q, pairs, square_root, r)
+            rng = NaorReingoldRandom(nbits, p, q, pairs, square_root, r)
         elif (p is not None or q is not None or pairs is not None
               or square_root is not None or r is not None):
             raise TypeError('got both rng and rng constructor args')
@@ -458,3 +475,4 @@ class NaorReingoldRandom(PyRandom):
 
     def getrandbits(self, k):
         return self._rng.next_int(k)
+
