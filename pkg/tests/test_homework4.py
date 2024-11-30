@@ -1,11 +1,15 @@
 from collections.abc import Iterator
-from typing import cast
+from contextlib import redirect_stdout
+import os
 import unittest
 
 import sympy.ntheory as sn
 
+from homework.fastexp import _silent_fastexp as fastexp
 from homework.homework4 import primitive_root, is_primitive_root, bsgs_log
 import homework.util
+
+from .test_fastexp import small_cases, filter_params
 
 
 class TestPrimitiveRoot(unittest.TestCase):
@@ -122,3 +126,55 @@ class TestIsPrimitiveRoot(unittest.TestCase):
                 self.assertEqual(is_primitive_root(x, p, factors=factors),
                                  sn.is_primitive_root(x, p),
                                  f'p={p}, potential root {x}')
+
+
+class TestBsgsLog(unittest.TestCase):
+    # Tests bsgs_log using the small test cases from fastexp.
+    # (The large cases are too big to run in a reasonable amount of time.)
+    def setUp(self):
+        homework.util.VERBOSE = False
+
+    def fastexp_params(self
+                       ) -> Iterator[tuple[tuple[int, int, int], int]
+                                     | tuple[tuple[int, int, int], int, str]]:
+        # Skip non-modular test cases from fastexp
+        for args, *rest in filter_params(small_cases()):
+            if len(args) < 3 or args[2] is None or not sn.isprime(args[2]):
+                # skip cases without a prime modulus
+                continue
+            yield args, *rest
+
+    def test_basic(self) -> None:
+        """Test using the numbers from the fastexp tests."""
+        for (base, _, mod), power, *msg in self.fastexp_params():
+            with self.subTest(*msg, args=(power, base, mod)):
+                self.assertEqual(power, fastexp(base,
+                                                bsgs_log(power, base, mod),
+                                                mod))
+
+    def test_no_log(self):
+        with self.assertRaises(ValueError):
+            bsgs_log(0, 5, 13)
+
+        with self.assertRaises(ValueError):
+            # The modulus isn't prime, but the number given also isn't coprime
+            # to it, so we get a specific error. Note that for some inputs,
+            # a non-prime modulus will produce non-error results that are not
+            # the discrete logarithm.
+            bsgs_log(37*3, 2, 43*37)
+
+    def test_verbose(self):
+        """Simple test for coverage and correctness in verbose mode."""
+        # Local setup/teardown for some quick test
+        def test(base, exp, mod):
+            power = fastexp(base, exp, mod)
+            self.assertEqual(power,
+                             fastexp(base, bsgs_log(power, base, mod), mod))
+        homework.util.VERBOSE = True
+        try:
+            with (open(os.devnull, 'w') as out,
+                  redirect_stdout(out)):
+                test(47, 8, 97) # 47**8 % 97 == 1
+                test(43, 15, 127)
+        finally:
+            homework.util.VERBOSE = False
