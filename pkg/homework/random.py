@@ -4,9 +4,8 @@ Key features of this module:
 - blum_blum_shub: simple, readable implementation of that algorithm
 - BlumBlumShub: more complex implementation (implements random.Random)
 - naor_reingolg: somewhat simple, readable implementation of that algorithm
-- NaorReingoldGenerator: more-complex implementation of that algorithm
-- NaorReingoldRandom: wrapper around the other implementation to
-  add the random.Random interface.
+- NaorReingold: more-complex implementation of that algorithm that also
+  implements random.Random
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -334,7 +333,7 @@ def naor_reingold(nbits, p, q,
 
 
 # TODO: Rename parameter/attribute 'r'.
-class NaorReingoldGenerator(BitIterator):
+class NaorReingold(HybridRandom):
     """Naor-Reingold PRNG.
 
     Can be constructed from all of its parameters via its normal constructor,
@@ -486,88 +485,12 @@ class NaorReingoldGenerator(BitIterator):
     def __next__(self):
         return self.f(next(self._count))
 
-
-class NaorReingoldRandom(PyRandom):
-    # Just read NaorReingoldGenerator; this is 95% just processing parameters
-    # for that class.
-    """An implementation of Python's random.Random using NaorReingoldGenerator.
-
-    Does not support re-seeding the RNG.
-
-    Has the same constructor as NaorReingold, including the from_rng factory.
-    """
-    @classmethod
-    def from_rng(cls, nbits: int, p: int, q: int,
-                 rng: PRNG | Iterator[Bit] | Iterator[int]) -> Self:
-        return cls(NaorReingoldRandom.from_rng(nbits, p, q, rng))
-
-    @overload
-    def __init__(self, nbits: int, /, p: int, q: int,
-                 pairs: Iterator[int] | Iterable[tuple[int, int]],
-                 square_root: int, r: Sequence[Bit]): ...
-
-    @overload
-    def __init__(self, /, *, nbits: int, p: int, q: int,
-                 pairs: Iterator[int] | Iterable[tuple[int, int]],
-                 square_root: int, r: Sequence[Bit]): ...
-
-    @overload
-    def __init__(self, rng: NaorReingoldRandom, /): ...
-
-    @overload
-    def __init__(self, /, *, rng: NaorReingoldRandom): ...
-
-    def __init__(self, nbits_or_rng: int | NaorReingoldRandom | None = None, /,
-                 p: int | None = None,
-                 q: int | None = None,
-                 pairs: (Iterator[int] | Iterable[tuple[int, int]]
-                         | None) = None,
-                 square_root: int | None = None,
-                 r: Sequence[Bit] | None = None,
-                 nbits: int | None = None,
-                 rng: NaorReingoldRandom | None = None):
-        if nbits is None and rng is None and nbits_or_rng is None:
-            raise TypeError('must provide NaorReingold instance or args')
-        elif isinstance(nbits_or_rng, int):
-            if nbits is not None:
-                raise TypeError('extra nbits parameter')
-            nbits = nbits_or_rng
-        elif isinstance(nbits_or_rng, NaorReingoldRandom):
-            if rng is not None:
-                raise TypeError('extra rng parameter')
-            rng = nbits_or_rng
-        else:
-            raise TypeError("expected int or NaorReingold,"
-                            f" but got '{type(nbits_or_rng)}'")
-
-        # assert (nbits is None) ^ (rng is None)
-
-        if nbits is not None:
-            if (p is None or q is None or pairs is None
-                or square_root is None or r is None):  # noqa:E129
-                raise TypeError('missing arguments')
-            rng = NaorReingoldRandom(nbits, p, q, pairs, square_root, r)
-        elif (p is not None or q is not None or pairs is not None
-              or square_root is not None or r is not None):
-            raise TypeError('got both rng and rng constructor args')
-        else:
-            pass # just given rng
-
-        self._rng = rng
-
     def getstate(self):
-        next_x = next(self._rng._count)
+        next_x = next(self._count)
         self.setstate(next_x)  # so we don't skip it
         return next_x
 
     def setstate(self, state):
-        self._rng._count = count(state)
+        self._count = count(state)
 
     seed = None  # type: ignore  # pyright: ignore
-
-    def random(self):
-        return random01(self._rng)
-
-    def getrandbits(self, k):
-        return self._rng.next_int(k)
-
