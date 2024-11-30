@@ -90,7 +90,8 @@ class LowBitIterator(WrappingBitIterator):
 
 
 class HybridRandom(BitIterator, PyRandom, ABC):
-    # Combination of BitIterator and Python's random.Random.
+    """Combination of BitIterator and Python's random.Random.
+    """
     def random(self) -> float:
         return random01(self)
 
@@ -115,6 +116,8 @@ class HybridRandom(BitIterator, PyRandom, ABC):
 
 
 class RngState:
+    # Dummy class for RNG state. Not compatible between RNG classes,
+    # but parameterizing that wouldn't be worth the benefit.
     pass
 
 
@@ -189,11 +192,19 @@ class BlumBlumShub(HybridRandom):
     >>> BlumBlumShub(n=n)
     >>> BlumBlumShub(p=p, q=q)
     """
+    _state: int
+
+    # The main part of the algorithm:
+    def __next__(self) -> Bit:
+        self._state = fastexp(self._state, 2, self.modulus)
+        return asbit(self._state & 1)
+
+    # __init__ is extra large because it's not straightforward to allow
+    # both (n) and (p, q) as arguments.
+    #
     # Redundant positional / keyword-only overloads are needed because the type
     # checkers have issues when the names are different for maybe-positional
     # parameters. (The first two overloads should just be (self, /, n: int).)
-    #
-    # Might've been a better idea to only allow (p, q), and not (n).
     @overload
     def __init__(self, n: int, /, *,
                  seed: int | None = ..., check_seeds: bool = ...): ...
@@ -251,10 +262,6 @@ class BlumBlumShub(HybridRandom):
     @property
     def modulus(self):
         return self._modulus
-
-    def __next__(self) -> Bit:
-        self._state = fastexp(self._state, 2, self.modulus)
-        return asbit(self._state & 1)
 
     def seed(self, a=None, version=2) -> None:
         if not isinstance(a, int):
@@ -462,6 +469,19 @@ class NaorReingold(HybridRandom):
         self._r = r
         self._count = count()
 
+    def __next__(self):
+        return self.f(next(self._count))
+
+    def getstate(self) -> RngState:  # type: ignore
+        next_x = cast(RngState, next(self._count))
+        self.setstate(next_x)  # so we don't skip the next bit
+        return next_x
+
+    def setstate(self, state: RngState):  # type: ignore
+        self._count = count(cast(int, state))
+
+    seed = None  # type: ignore
+
     @property
     def nbits(self) -> int:
         return self._nbits
@@ -481,16 +501,3 @@ class NaorReingold(HybridRandom):
     @property
     def r(self) -> Sequence[Bit]:
         return self._r
-
-    def __next__(self):
-        return self.f(next(self._count))
-
-    def getstate(self):
-        next_x = next(self._count)
-        self.setstate(next_x)  # so we don't skip it
-        return next_x
-
-    def setstate(self, state):
-        self._count = count(state)
-
-    seed = None  # type: ignore  # pyright: ignore
