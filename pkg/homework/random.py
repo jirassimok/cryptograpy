@@ -361,11 +361,15 @@ class NaorReingoldGenerator(BitIterator):
         if gcd(square_root, n) != 1:
             raise ValueError('square_root not coprime to p*q')
 
+        r = tuple(r)
+        if len(r) != nbits:
+            raise ValueError('r is not nbits bits long')
+
         self._nbits = nbits
         self._n = n
         self._pairs = pairs
         self._square = fastexp(square_root, 2, n)
-        self._r = tuple(r)
+        self._r = r
         self._count = count()
 
     @property
