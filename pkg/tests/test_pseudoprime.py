@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import count
-from typing import cast, Literal
+from typing import cast
 import unittest
 
 from sympy.ntheory import isprime as sympy_isprime
