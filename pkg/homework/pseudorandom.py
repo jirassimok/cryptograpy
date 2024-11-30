@@ -15,10 +15,10 @@ from operator import mul
 from random import Random as PyRandom
 from typing import cast, overload, Self
 
+from .bititer import asbit, Bit, BitIterator, WrappingBitIterator
 from .euclid import _silent_euclid as gcd
 from .fastexp import _silent_fastexp as fastexp
-from .util import (asbit, Bit, BitIterator, printer, Verbosity, is_verbose,
-                   WrappingBitIterator)
+from .util import printer, Verbosity, is_verbose
 
 
 # This alias just makes some of the other APIs clearer.
