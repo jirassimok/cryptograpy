@@ -1,14 +1,16 @@
 """
 Key features of this module:
 
+- blum_blum_shub: simple, readable implementation of that algorithm
 - BlumBlumShub: more complex implementation (implements random.Random)
-- NaorReingoldGenerator: core implementation of that algorithm
+- naor_reingolg: somewhat simple, readable implementation of that algorithm
+- NaorReingoldGenerator: more-complex implementation of that algorithm
 - NaorReingoldRandom: wrapper around the other implementation to
   add the random.Random interface.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from itertools import count, starmap
 from operator import mul
 from random import Random as PyRandom
@@ -118,6 +120,40 @@ class RngState:
 
 
 ## Blum-Blum-Shub
+
+
+# This is a simple, readable implementation of BBS. The one afterwards is
+# more complicated, because it has to expose its internal state.
+def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
+    """Create a Blum-Blum-Shub PRNG.
+
+    Parameters
+    ----------
+    p : integer
+        A large prime equal to 3, mod 4.
+    q : integer
+        The second large prime equal to 3, mod 4.
+
+    Returns
+    -------
+    callable
+        A function that takes in a seed and returns a BitIterator over the
+        pseudorandom bits.
+    """
+    if p % 4 != 3:
+        raise ValueError('p % 4 != 3')
+    elif q % 4 != 3:
+        raise ValueError('q % 4 != 3')
+    n = p * q
+    del p, q
+
+    def generator(s: int) -> Iterator[Bit]:
+        while True:
+            s = fastexp(s, 2, n)
+            yield asbit(s % 2)
+
+    return lambda seed: WrappingBitIterator(generator(seed))
+
 
 class BlumBlumShub(HybridRandom):
     """Blum-Blum-Shub PRNG.
@@ -241,6 +277,61 @@ class BlumBlumShub(HybridRandom):
 
 
 ## Naor-Reingold
+
+def naor_reingold(nbits, p, q,
+                  pairs: Iterable[tuple[int, int]],
+                  square_root,
+                  r) -> PRNG:
+    """Iterate over random numbers using a Naor-Reingold function.
+
+    Parameters
+    ----------
+    nbits : int
+        Number of bits.
+    p : int
+        An nbits-bit prime.
+    q : int
+        Another nbits-bit prime.
+    pairs : iterable of pairs of ints
+        The 2*nbits random numbers from 1 to p*q to use in the algorithm.
+        They must already be paired up.
+    square_root : int
+        A number coprime to p*q.
+    r : sequence of ints
+        A sequence of nbits random bits.
+    """
+    if p.bit_length() != nbits:
+        raise ValueError(f'{p} does not have {nbits} bits')
+    elif q.bit_length() != nbits:
+        raise ValueError(f'{q} does not have {nbits} bits')
+    n = p * q
+    del p, q
+
+    pairs = tuple(pairs)
+    for a, b in pairs:
+        if not (1 <= a <= n):
+            raise ValueError(f'number {a} is not on [1, {n}]')
+        if not (1 <= b <= n):
+            raise ValueError(f'number {b} is not on [1, {n}]')
+    del a, b
+
+    if gcd(square_root, n) != 1:
+        raise ValueError('square_root not coprime to p*q')
+    square = fastexp(square_root, 2, n)
+    del square_root
+
+    r = tuple(r)
+    if len(r) != nbits:
+        raise ValueError('r is not nbits bits long')
+
+    def f(x) -> Bit:
+        """The Naor-Reingold function."""
+        exp = sum(a[bit] for a, bit in zip(pairs, split_bits(x)))
+        g_to_e = fastexp(square, exp, n)
+        return dot(r, split_bits(g_to_e))
+
+    return WrappingBitIterator(map(f, count()))
+
 
 # TODO: Rename parameter/attribute 'r'.
 class NaorReingoldGenerator(BitIterator):
