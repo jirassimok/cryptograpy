@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator
 from contextvars import ContextVar
 from functools import wraps
-from itertools import count
+from itertools import count, takewhile, dropwhile
 from operator import itemgetter
 import random
 from typing import (Any, Callable, cast, Never, overload, Protocol,
@@ -160,6 +160,17 @@ def substr(n: int) -> str:
         n //= 10
         digits.append(chr(0x2080 + digit))
     return ''.join(reversed(digits))
+
+
+## Iterator helpers
+
+def takebetween[T](iterable: Iterable[T], start, stop) -> Iterable[T]:
+    """Get values in the range [start, stop) from an iterator.
+
+    Gets the first run of values in the range if unsorted.
+    """
+    return takewhile(lambda x: x < stop,
+                     dropwhile(lambda x: x < start, iterable))
 
 
 ## Recursive function logging decorator

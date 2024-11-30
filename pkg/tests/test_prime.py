@@ -1,25 +1,17 @@
 # noqa: E225
 from collections.abc import Iterable
-from itertools import count, dropwhile, islice, takewhile, zip_longest
+from itertools import count, islice, takewhile, zip_longest
 import unittest
 
 import homework.prime as prime
 import homework.util
+from homework.util import takebetween
 
 
 def take(iterator, n):
     """Get n items from an iterator as a list.
     """
     return list(islice(iterator, n))
-
-
-def takebetween(iterable, start, stop):
-    """Get values in the range [start, stop) from an iterator.
-
-    Gets the first run of values in the range.
-    """
-    return takewhile(lambda x: x < stop,
-                     dropwhile(lambda x: x < start, iterable))
 
 
 class TestCase(unittest.TestCase):
