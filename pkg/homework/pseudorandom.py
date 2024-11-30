@@ -29,20 +29,6 @@ def dot(v: Iterable[Bit], u: Iterable[Bit]) -> Bit:
     return asbit(sum(starmap(mul, zip(v, u))))
 
 
-def pad_bits(n: int, bits: int) -> int:
-    """Zero-pad n to the given number of bits.
-
-    Actually doesn't pad at all; we rely on Python's arbitrary-size
-    integer semantics, which already zero-pad non-negative numbers.
-    """
-    if n < 0:
-        raise ValueError('can not bit-pad negative number')
-    elif n.bit_length() > bits:
-        raise ValueError(
-            f'can not pad {n.bit_length()}-bit number to {bits} bits')
-    return n
-
-
 def split_bits(x: int) -> Iterator[Bit]:
     """Get the bits of a non-negative int, from least to most significant.
 
