@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from collections.abc import Buffer
+from collections.abc import Buffer, Callable
 from dataclasses import dataclass
 import functools
 import numbers
 import operator
 import types
-from typing import (Callable, Concatenate, Literal, Never, overload, Protocol,
-                    Self, SupportsIndex, SupportsInt, TYPE_CHECKING)
+from typing import (Concatenate, Literal, Never, overload, Protocol, Self,
+                    SupportsIndex, SupportsInt, TYPE_CHECKING)
 
 
 ## Number-container numbers.Integral implementation

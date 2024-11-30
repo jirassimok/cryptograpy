@@ -2,11 +2,11 @@
 from __future__ import annotations
 import builtins
 from collections import deque
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from contextvars import ContextVar
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Final
+from typing import Final
 
 from .util import (alternate_impl, copy_callable_type, cr, Verbosity,
                    is_verbose, printer, recursive_logging)

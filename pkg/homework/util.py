@@ -1,12 +1,11 @@
 # -*- flycheck-checker: python-pyright; -*-
 from __future__ import annotations
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from contextvars import ContextVar
 from functools import wraps
 from itertools import takewhile, dropwhile
 from operator import itemgetter
-from typing import (Any, Callable, cast, Never, overload, Protocol,
-                    TYPE_CHECKING)
+from typing import Any, cast, Never, overload, Protocol, TYPE_CHECKING
 
 
 ## Settings
