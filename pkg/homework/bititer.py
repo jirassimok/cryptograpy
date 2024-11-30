@@ -1,3 +1,10 @@
+"""
+This module defines functions in two broad groups.
+
+- BitIterator: an iterator over bits
+- PRNG: a combination of BitIterator and random.Random
+"""
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator
 from itertools import count
@@ -96,29 +103,87 @@ class WrappingBitIterator(BitIterator):
         return next(self._generator)
 
 
-class RandomBitIterator(BitIterator):
+class PRNG(BitIterator, random.Random, ABC):
+    """Combination of BitIterator and Python's random.Random.
+    """
+    def random(self) -> float:
+        """Generate a random float on [0, 1)."""
+        # float has a 53-bit mantissa
+        return self.next_int(53) / (2**53)
+
+    def getrandbits(self, k: int) -> int:
+        return self.next_int(k)
+
+    @abstractmethod
+    def __next__(self) -> Bit:
+        ...
+
+    @abstractmethod
+    def seed(self, a=..., version=...) -> None:
+        ...
+
+    @abstractmethod
+    def getstate(self) -> RngState:  # type: ignore[override]
+        ...
+
+    @abstractmethod
+    def setstate(self, state: RngState):  # type: ignore[override]
+        ...
+
+
+class RngState:
+    # Dummy class for RNG state. Not compatible between RNG classes,
+    # but parameterizing that wouldn't be worth the benefit.
+    pass
+
+
+class WrappingPRNG(WrappingBitIterator, PRNG):
+    """A simple PRNG that wraps a generator."""
+    def __init__(self, generator: Iterator[Bit], /):
+        super().__init__(generator)
+
+    # The Python docs recommend this for removing overridden methods,
+    # though SystemRandom itself raises NotImplementedError instead
+    # for the latter two of these methods.
+    seed = None  # type: ignore[assignment]
+    setstate = None  # type: ignore[assignment]
+    getstate = None  # type: ignore[assignment]
+
+
+class RandomBitIterator(PRNG, random.Random):
     """A BitIterator based on the system random module.
 
     This iterator is unsuitable for cryptographic use.
     """
+    # Has to go back and override the methods from PRNG to
+    # prevent recursion.
+
     def __init__(self, seed=None):
-        if seed is None:
-            self._random = random
-        else:
-            self._random = random.Random(seed)
+        super().__init__(seed)
 
     def __next__(self) -> Bit:
-        return asbit(self._random.getrandbits(1))
+        return asbit(self.getrandbits(1))
 
-    def next_byte(self) -> int:
-        return self._random.getrandbits(8)
+    def getrandbits(self, k):
+        # We can use this super call because PRNG is also a random.Random
+        return super(PRNG, self).getrandbits(k)
+
+    def random(self):
+        return super(PRNG, self).random()
 
     def next_int(self, nbits: int) -> int:
-        return self._random.getrandbits(nbits)
+        return self.getrandbits(nbits)
+
+    def seed(self, a=None, version=2):
+        super(PRNG, self).seed(a, version)
+
+    def getstate(self):
+        return super(PRNG, self).getstate()
+
+    def setstate(self, state):
+        super(PRNG, self).setstate(state)
 
 
-class SystemRandomBitIterator(RandomBitIterator):
+class SystemRandomBitIterator(random.SystemRandom, PRNG):
     """A RandomBitIterator based on random.SystemRandom.
     """
-    def __init__(self):
-        self._random = random.SystemRandom()

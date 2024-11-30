@@ -8,21 +8,16 @@ Key features of this module:
   implements random.Random
 """
 from __future__ import annotations
-from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from itertools import count, starmap
 from operator import mul
-from random import Random as PyRandom
 from typing import cast, overload, Self
 
-from .bititer import asbit, Bit, BitIterator, WrappingBitIterator
+from .bititer import (asbit, Bit, BitIterator, PRNG, RngState, WrappingPRNG,
+                      WrappingBitIterator)
 from .euclid import _silent_euclid as gcd
 from .fastexp import _silent_fastexp as fastexp
 from .util import printer, Verbosity, is_verbose
-
-
-# This alias just makes some of the other APIs clearer.
-type PRNG = BitIterator
 
 
 def dot(v: Iterable[Bit], u: Iterable[Bit]) -> Bit:
@@ -43,8 +38,13 @@ def split_bits(x: int) -> Iterator[Bit]:
         x >>= 1
 
 
-def randrange(rng: PRNG, lo: int, hi: int, /) -> int:
-    """Generate a random int in range(lo, hi)."""
+# I could use PRNG.randrange, but that uses Python's implementation,
+# not my own, for the actual randrange portion.
+def randrange(rng: BitIterator, lo: int, hi: int, /) -> int:
+    """Generate a random int in range(lo, hi).
+
+    The provided bititerator must produce random bits.
+    """
     span = hi - lo
     bits = span.bit_length()
     for n in rng.iter_ints(bits):
@@ -54,51 +54,7 @@ def randrange(rng: PRNG, lo: int, hi: int, /) -> int:
     assert False, 'unreachable'
 
 
-def random01(rng: PRNG) -> float:
-    """Generate a random float on [0, 1)."""
-    # float has a 53-bit mantissa
-    return rng.next_int(53) / (2**53)
-
-
-def randint(rng: PRNG, lo: int, hi: int, /) -> int:
-    """Generate a random int from lo to hi, inclusive."""
-    return randrange(rng, lo, hi + 1)
-
-
-class HybridRandom(BitIterator, PyRandom, ABC):
-    """Combination of BitIterator and Python's random.Random.
-    """
-    def random(self) -> float:
-        return random01(self)
-
-    def getrandbits(self, k: int) -> int:
-        return self.next_int(k)
-
-    @abstractmethod
-    def __next__(self) -> Bit:
-        ...
-
-    @abstractmethod
-    def seed(self, a=..., version=...) -> None:
-        ...
-
-    @abstractmethod
-    def getstate(self) -> RngState:  # type: ignore[override]
-        ...
-
-    @abstractmethod
-    def setstate(self, state: RngState):  # type: ignore[override]
-        ...
-
-
-class RngState:
-    # Dummy class for RNG state. Not compatible between RNG classes,
-    # but parameterizing that wouldn't be worth the benefit.
-    pass
-
-
 ## Blum-Blum-Shub
-
 
 # This is a simple, readable implementation of BBS. The one afterwards is
 # more complicated, because it has to expose its internal state.
@@ -130,10 +86,10 @@ def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
             s = fastexp(s, 2, n)
             yield asbit(s)
 
-    return lambda seed: WrappingBitIterator(generator(seed))
+    return lambda seed: WrappingPRNG(generator(seed))
 
 
-class BlumBlumShub(HybridRandom):
+class BlumBlumShub(PRNG):
     """Blum-Blum-Shub PRNG.
 
     Can be constructed using either n or p and q.
@@ -313,11 +269,11 @@ def naor_reingold(nbits, p, q,
         g_to_e = fastexp(square, exp, n)
         return dot(r, split_bits(g_to_e))
 
-    return WrappingBitIterator(map(f, count()))
+    return WrappingPRNG(map(f, count()))
 
 
 # TODO: Rename parameter/attribute 'r'.
-class NaorReingold(HybridRandom):
+class NaorReingold(PRNG):
     """Naor-Reingold PRNG.
 
     Can be constructed from all of its parameters via its normal constructor,
@@ -398,7 +354,7 @@ class NaorReingold(HybridRandom):
 
         def repeat_randint(lo, hi):
             while True:
-                yield randint(rng, lo, hi)
+                yield randrange(rng, lo, hi + 1)
 
         pairs = repeat_randint(1, n)
 
