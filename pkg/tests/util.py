@@ -1,18 +1,32 @@
-import unittest
+from collections.abc import Sequence
+from itertools import islice
 
-# class TestResult(unittest.TestResult):
-#     def __init__(self, *a, **k):
-#         super().__init__(*a, **k)
-#         print('init')
-#
-#     def addSubTest(self, test, subtest, outcome):
-#         result = super().addSubTest(self, test, subtest, outcome)
-#         self.testsRun += 1
-#         return result
+from homework.pseudorandom import PRNG, split_bits
+from homework.bititer import WrappingPRNG
+
+type BitLength = int
 
 
-# class TestCase(unittest.TestCase):
-#     def shortDescription(self):
-#         desc = super().shortDescription()
-#         note = 'Due to subtests, the number of tests will be inaccurate.'
-#         return note if desc is None else f'{desc} {note}'
+class FalseWrappingPRNG(WrappingPRNG):
+    """Lying PRNG that just produces one value at a time from certain methods.
+    """
+    def randrange(self, start, stop=None):
+        return next(self._generator)
+
+    def randint(self, start, stop=None):
+        return next(self._generator)
+
+
+def false_random(values: Sequence[int | tuple[int, BitLength]]) -> PRNG:
+    """Create a PRNG that will produce the given values at the given sizes.
+
+    Numbers without sizes are generated as-is.
+
+    Note: if these numbers will be used for randrange, use FalseWrappingPRNG
+    instead (or in addition).
+    """
+    def generator():
+        for val, size in values:
+            yield from islice(split_bits(val), size)
+
+    return WrappingPRNG(generator())
