@@ -293,14 +293,14 @@ class BitIterator(ABC, Iterator[Bit]):
     def iter_bytes(self) -> Iterator[int]:
         """Generate bytes.
 
-        The generator shares the state of the PRNG.
+        The generator shares this iterator's state.
         """
         yield from self.iter_ints(8)
 
     def iter_ints(self, nbits: int) -> Iterator[int]:
         """Generate nbits-bit integers.
 
-        The generator shares the state of the PRNG.
+        The generator shares this iterator's state.
         """
         while True:
             yield self.next_int(nbits)
