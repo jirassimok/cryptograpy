@@ -4,17 +4,22 @@ from itertools import count
 from typing import cast, Literal
 import unittest
 
-from sympy.ntheory import isprime
+from sympy.ntheory import isprime as sympy_isprime
 from homework.pseudoprime import strong_prime_test
 
 from .test_prime import PRIMES_BELOW_4000
 
 
 def find_near(pseudoprimes: set[int]) -> tuple[set[int], set[int]]:
-    """Find the nearest true prime and composite above and below each
+    """Find the nearest true prime and composite above and below each given
     pseudoprime (excluding the pseudoprimes). Returns a set of primes and a set
     of composites.
+
+    Note: can't actually check that the returned primes aren't unknown
+    pseudoprimes.
     """
+    if 2 in pseudoprimes:
+        raise ValueError("Can't find primes near 2")
     primes = set()
     composites = set()
     for pp in pseudoprimes:
@@ -39,6 +44,7 @@ def find_near(pseudoprimes: set[int]) -> tuple[set[int], set[int]]:
 
 @dataclass
 class Near:
+    """Represents a prime and a composite near another number."""
     m_prime: int | None = None
     m_composite: int | None = None
 
@@ -51,13 +57,17 @@ class Near:
         return cast(int, self.m_composite)
 
     def consider(self, x: int):
-        prime = isprime(x)
+        """"Assign x to the saved prime or composite, as appropraite,
+        if not already set.
+        """
+        prime = sympy_isprime(x)
         if self.m_prime is None and prime:
             self.m_prime = x
         elif self.m_composite is None and not prime:
             self.m_composite = x
 
     def full(self):
+        """Check whether both a prime and composite have been set."""
         return self.m_prime is not None and self.m_composite is not None
 
 
@@ -69,6 +79,13 @@ class TestCheckPrime(unittest.TestCase):
 
     def auto_test_bases(self, bases: int | set[int],
                         pseudoprimes: Iterable[int], /):
+        """Given a base or set of bases and a list of pseudoprimes, test the
+        primality checker.
+
+        Finds the nearest primes and compsites to each of the given
+        pseudoprimes (in both directions), and tests those as well as the
+        pseudoprimes themselves.
+        """
         pseudoprimes = set(pseudoprimes)
         primes, composites = find_near(pseudoprimes)
 
@@ -106,8 +123,10 @@ class TestCheckPrime(unittest.TestCase):
         self.auto_test_bases({2, 3, 5, 7}, [3215031751, 118670087467])
 
     def test_4000(self):
+        """Test the first 4000 positive integers against a few bases.
+        """
         for bases in [(2, 3), (2, 5), (3, 5), (13, 29), (1301, 1871)]:
-            for n in range(4000):
+            for n in range(1, 4001):
                 if n in bases:
                     continue
                 self.assertEqual(strong_prime_test(n, bases),
