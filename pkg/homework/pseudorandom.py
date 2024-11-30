@@ -65,16 +65,6 @@ def randint(rng: PRNG, lo: int, hi: int, /) -> int:
     return randrange(rng, lo, hi + 1)
 
 
-class LowBitIterator(WrappingBitIterator):
-    """WrappingBitIterator that specifically truncates its bits.
-
-    This allows it to work as expected even if the underlying generator isn't
-    actually producing only a single bit at a time.
-    """
-    def __init__(self, generator: Iterator[Bit] | Iterator[int], /):
-        super().__init__(asbit(b) for b in generator)
-
-
 class HybridRandom(BitIterator, PyRandom, ABC):
     """Combination of BitIterator and Python's random.Random.
     """
@@ -488,3 +478,13 @@ class NaorReingold(HybridRandom):
     @property
     def r(self) -> Sequence[Bit]:
         return self._r
+
+
+class LowBitIterator(WrappingBitIterator):
+    """WrappingBitIterator that specifically truncates its bits.
+
+    This allows it to work as expected even if the underlying generator isn't
+    actually producing only a single bit at a time.
+    """
+    def __init__(self, generator: Iterator[Bit] | Iterator[int], /):
+        super().__init__(asbit(b) for b in generator)
