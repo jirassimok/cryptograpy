@@ -20,6 +20,18 @@ from .fastexp import _silent_fastexp as fastexp
 from .util import printer, Verbosity, is_verbose
 
 
+__all__ = [
+    'blum_blum_shub',
+    'BlumBlumShub',
+    'naor_reingold',
+    'NaorReingold',
+    'split_bits',
+    'dot',
+    'randrange',
+    'PRNG', # re-exported
+]
+
+
 def dot(v: Iterable[Bit], u: Iterable[Bit]) -> Bit:
     return asbit(sum(starmap(mul, zip(v, u))))
 

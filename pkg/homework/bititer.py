@@ -19,6 +19,8 @@ __all__ = [
     'pack_bits',
     'BitIterator',
     'WrappingBitIterator',
+    # 'PRNG' is exported from pseudorandom instead
+    'WrappingPRNG',
     'RandomBitIterator',
     'SystemRandomBitIterator',
 ]
