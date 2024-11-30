@@ -8,13 +8,9 @@ from .util import is_verbose, printer, supstr, Verbosity
 
 # TODO: Split this functions out into appropriate modules or
 #       at least rename this one.
-# TODO: Tests for primitive_root, formal tests for bsgs_log
-# TODO: Test the edge case for bsgs_log. Very important!
+
 
 ## Primitive Root search algorithm
-
-# Test against symopy.ntheory.(is_)primitive_root?
-
 
 def primitive_root(p, *,
                    nocheck=False,
