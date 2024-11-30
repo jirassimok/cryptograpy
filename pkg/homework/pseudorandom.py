@@ -27,7 +27,6 @@ __all__ = [
     'NaorReingold',
     'split_bits',
     'dot',
-    'randrange',
     'PRNG', # re-exported
 ]
 
@@ -50,9 +49,9 @@ def split_bits(x: int) -> Iterator[Bit]:
         x >>= 1
 
 
-# I could use PRNG.randrange, but that uses Python's implementation,
-# not my own, for the actual randrange portion.
-def randrange(rng: BitIterator, lo: int, hi: int, /) -> int:
+# Don't use this externally; it's hard to test functions that use it because
+# it's hard to mock effectively.
+def _randrange(rng: BitIterator, lo: int, hi: int, /) -> int:
     """Generate a random int in range(lo, hi).
 
     The provided bititerator must produce random bits.
@@ -366,11 +365,11 @@ class NaorReingold(PRNG):
 
         def repeat_randint(lo, hi):
             while True:
-                yield randrange(rng, lo, hi + 1)
+                yield _randrange(rng, lo, hi + 1)
 
         pairs = repeat_randint(1, n)
 
-        while (square_root := randrange(rng, 1, n)):
+        while (square_root := _randrange(rng, 1, n)):
             if gcd(square_root, n) == 1:
                 break
 
