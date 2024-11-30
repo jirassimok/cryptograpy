@@ -117,7 +117,7 @@ class TestFastexp(unittest.TestCase):
     def exp(a: int, b: int, mod: int | None = None, /) -> int:
         return fastexp(a, b, mod)
 
-    _params: tuple[CaseArgs, ...] = (*small_cases(), *large_cases())
+    params: tuple[CaseArgs, ...] = (*small_cases(), *large_cases())
     """Basic test cases.
 
     A 3-tuple of ints is the arguments to exp, to compare against builtin pow.
@@ -151,7 +151,7 @@ class TestFastexp(unittest.TestCase):
                                         | tuple[ExpArgs, int, str]]:
         """Return the basic test parameters with defaults filled in.
         """
-        return filter_params(self._params)
+        return filter_params(self.params)
 
 
 # I used a separate implementation for the verbose version,
@@ -191,13 +191,8 @@ class TestFastexpRecursive(TestFastexp):
 
 
 class TestSlowexp(TestFastexp):
+    params = tuple(small_cases())
+
     @staticmethod
     def exp(a: int, b: int, mod: int | None = None, /) -> int:
         return slowexp(a, b, mod)
-
-    def filter_params(self: Self):
-        for args, e, *label in super().filter_params():
-            # mypy thinks that a in args is int|None.
-            if all(a < 10**20 for a in args) and e < 10**20: # type: ignore
-                # Skip cases with huge numbers
-                yield args, e, *label
