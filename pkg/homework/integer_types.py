@@ -515,6 +515,28 @@ class Integer(BaseInt):
 
 ## Bit class
 
+
+if TYPE_CHECKING:
+    @overload
+    def _bitop(self, other: Bit) -> Bit: ...
+
+    @overload
+    def _bitop(self, other: int) -> int: ...
+
+    def _bitop(self, other):
+        return
+else:
+    _bitop = None
+
+
+def _returning_type_of_twice[F: Callable, **A
+                             ](f: F) -> Callable[[Callable[A, Any]],
+                                                 Callable[A, tuple[F, F]]]:
+    """Like util.returning_type_of, but returns the type twice.
+    """
+    return lambda fn: fn
+
+
 class Bit(numbers.Integral):
     """A single bit that acts like an integer.
 
@@ -540,6 +562,7 @@ class Bit(numbers.Integral):
         return f'{type(self).__name__}({self.value})'
 
     @staticmethod
+    @_returning_type_of_twice(_bitop)
     def _operator(opfn):
         def op(self, other):
             cls = type(self)
