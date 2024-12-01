@@ -105,3 +105,39 @@ def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
             return False
     else:
         return False
+
+
+def is_prime(n: int) -> bool:
+    """Check probabilistically if a number is prime.
+
+    Is accurate for all n up to 318665857834031151167460.
+    """
+    if n % 2 == 0 or n % 3 == 0 or n < 2:
+        return False
+
+    # Reference:
+    # OEIS sequence A014233, pseudoprimes relative to first n primes as bases
+    # Also referenced: https://doi.org/10.1090/S0025-5718-2014-02830-5
+
+    primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43)
+
+    if n < 2047:
+        return strong_prime_test(n, primes[:1])
+    elif n < 1373653:
+        return strong_prime_test(n, primes[:2])
+    elif n < 25326001:
+        return strong_prime_test(n, primes[:3])
+    elif n < 3215031751:
+        return strong_prime_test(n, primes[:4])
+    elif n < 2152302898747:
+        return strong_prime_test(n, primes[:5])
+    elif n < 3474749660383:
+        return strong_prime_test(n, primes[:6])
+    elif n < 341550071728321:  # same for 7-8 prime bases
+        return strong_prime_test(n, primes[:7])
+    elif n < 3825123056546413051:  # same for 9-11 prime bases
+        return strong_prime_test(n, primes[:9])
+    elif n < 318665857834031151167461:
+        return strong_prime_test(n, primes[:12])
+    else: # elif n < 3317044064679887385961981:
+        return strong_prime_test(n, primes)
