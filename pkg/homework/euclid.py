@@ -73,14 +73,14 @@ def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
 
 ## Extra exports
 
-def gcd(m: int, n: int) -> int:
+def gcd(a: int, b: int, /) -> int:
     """Compute greatest common divisor using the Euclidean algorithm.
 
     See euclid for details.
     """
-    return euclid(m, n, verbose=False)
+    return euclid(a, b, verbose=False)
 
-def modular_inverse(n: int, modulus: int):
+def modular_inverse(n: int, /, modulus: int):
     """Compute modular inverse using the extended Euclidean algorithm.
 
     See ext_euclid for details.
