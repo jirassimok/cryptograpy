@@ -256,6 +256,8 @@ class Sieve:
                 pass
 
     def generate(self) -> Iterator[int]:
+        """Generate primes in the sieve on demand, filling as needed.
+        """
         yield 2
         cursor = 3
         while p := self._find_true(cursor):
