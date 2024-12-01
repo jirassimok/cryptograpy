@@ -13,9 +13,9 @@ class Key(NamedTuple):
 
 
 class ElGamal:
-    """Represents one user in an ElGamal key exchange.
+    """Represents one user in an ElGamal-encrypted exchange.
 
-    See the publish_key,
+    See the publish_key, encrypt, and decrypt methods.
 
     Attributes
     ----------
