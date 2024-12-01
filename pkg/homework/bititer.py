@@ -132,6 +132,27 @@ class PRNG(BitIterator, random.Random, ABC):
     def setstate(self, state: RngState):  # type: ignore[override]
         ...
 
+    def randrange(self: BitIterator, start: int,
+                  stop: int | None = None,
+                  step: int = 1) -> int:
+        """Generate a random int in range(lo, hi).
+
+        The provided bititerator must produce random bits.
+        """
+        if stop is None:
+            start, stop = 0, start
+        if stop <= start:
+            raise ValueError(f'empty range ({start}, {stop})')
+
+        span = range(start, stop, step)
+        count = len(span)
+        bits = count.bit_length()
+        for n in self.iter_ints(bits):
+            # find a value from 0 to span-1
+            if n < count:
+                return span[n]
+        assert False, 'unreachable'
+
 
 class RngState:
     # Dummy class for RNG state. Not compatible between RNG classes,
@@ -185,7 +206,14 @@ class RandomBitIterator(PRNG, random.Random):
     def setstate(self, state):
         super(PRNG, self).setstate(state)
 
+    def randrange(self, start, stop=None, step=1):
+        return super(PRNG, self).randrange(start, stop, step)
+
 
 class SystemRandomBitIterator(random.SystemRandom, PRNG):
     """A RandomBitIterator based on random.SystemRandom.
     """
+    # SystemRandom's implementations should be prioritized over PRNG's,
+    # except for the inherited ones.
+    def randrange(self, start, stop=None, step=1):
+        return super(random.SystemRandom, self).randrange(start, stop, step)
