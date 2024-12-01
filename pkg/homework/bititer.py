@@ -144,13 +144,14 @@ class PRNG(BitIterator, random.Random, ABC):
         if stop <= start:
             raise ValueError(f'empty range ({start}, {stop})')
 
-        span = range(start, stop, step)
-        count = len(span)
+        # count is the number of multiples of step on the interval
+        # [0, stop - start] === the number of possible results.
+        count = (stop - start + step - 1) // step
         bits = count.bit_length()
         for n in self.iter_ints(bits):
             # find a value from 0 to span-1
             if n < count:
-                return span[n]
+                return start + step * n
         assert False, 'unreachable'
 
 
