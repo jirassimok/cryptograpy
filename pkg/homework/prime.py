@@ -3,14 +3,11 @@ Utilities for working with primes.
 
 Much of this is reimplimentation of sympy facilities.
 """
-# Much of this is copied from homework4_notebook.py.
 from array import array
 from collections.abc import Container, Iterable, Iterator
 from math import isqrt
 
 import sympy.ntheory as _sn
-# from contextlib import contextmanager, ContextDecorator
-# from contextvars import ContextVar
 
 from .util import alternate_impl, USE_SYMPY
 
