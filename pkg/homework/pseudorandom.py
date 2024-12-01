@@ -15,8 +15,8 @@ from typing import cast, overload, Self
 
 from .bititer import (asbit, Bit, BitIterator, PRNG, RngState, WrappingPRNG,
                       WrappingBitIterator)
-from .euclid import _silent_euclid as gcd
-from .fastexp import _silent_fastexp as fastexp
+from .euclid import gcd
+from .fastexp import pow as fastexp
 from .util import printer, Verbosity, is_verbose
 
 

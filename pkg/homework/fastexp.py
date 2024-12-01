@@ -54,7 +54,11 @@ def fastexp(base: int, exp: int, modulus: int | None = None,
     return acc
 
 
-def _silent_fastexp(base: int, exp: int, modulus: int | None = None) -> int:
+def pow(base: int, exp: int, modulus: int | None = None) -> int:
+    """Computer base**exp % mod using exponentiation by squaring.
+
+    See fastexp for details.
+    """
     return fastexp(base, exp, modulus, verbose=False)
 
 

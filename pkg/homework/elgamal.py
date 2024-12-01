@@ -1,13 +1,8 @@
 from typing import NamedTuple
 
-from .fastexp import _silent_fastexp as fastexp
-from .homework4 import _silent_bsgs_log as bsgs_log
-from .euclid import _silent_ext_euclid as ext_euclid
-
-
-def inverse(n: int, modulus: int):
-    """Compute modular inverse using the extended Euclidean algorithm."""
-    return ext_euclid(modulus, n)[-1] % modulus
+from .euclid import modular_inverse
+from .fastexp import pow as fastexp
+from .homework4 import discrete_log
 
 
 class Key(NamedTuple):
@@ -92,7 +87,7 @@ class ElGamal:
             The message to decrypt.
         """
         p = self.prime
-        b_to_s_inv = inverse(sender_base_to_secret, p)
+        b_to_s_inv = modular_inverse(sender_base_to_secret, p)
         b_to_both_inv = fastexp(b_to_s_inv, self._secret, p)
         return b_to_both_inv * ciphertext % p
 
@@ -120,7 +115,7 @@ def crack(prime, base,
     p, b, c = prime, base, ciphertext
     bs = sender_base_to_secret
     br = recipient_base_to_secret
-    r = bsgs_log(br, b, p)
+    r = discrete_log(br, b, p)
     bs_inv = fastexp(bs, p - 2, p)  # b^t^-1
     bsr_inv = fastexp(bs_inv, r, p)  # b^t^r^-1
     return c * bsr_inv % p

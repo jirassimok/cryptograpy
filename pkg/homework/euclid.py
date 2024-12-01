@@ -71,6 +71,23 @@ def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
     return sign_wrapper
 
 
+## Extra exports
+
+def gcd(m: int, n: int) -> int:
+    """Compute greatest common divisor using the Euclidean algorithm.
+
+    See euclid for details.
+    """
+    return euclid(m, n, verbose=False)
+
+def modular_inverse(n: int, modulus: int):
+    """Compute modular inverse using the extended Euclidean algorithm.
+
+    See ext_euclid for details.
+    """
+    return ext_euclid(modulus, n, verbose=False)[-1] % modulus
+
+
 ## Euclidean Algorithm
 
 @recursive_logging
@@ -136,10 +153,6 @@ def euclid(m: int, n: int, /, *, verbose:Verbosity=None) -> int:
     return b
 
 
-def _silent_euclid(m: int, n: int, /) -> int:
-    return euclid(m, n, verbose=False)
-
-
 ## Extended Euclidean Algorithm
 
 @check_signs
@@ -170,10 +183,6 @@ def ext_euclid(m: int, n: int, /, *,
         t.append(t[-2] - q * t[-1])
         print_eqn(a, b, q, r, s, t)
     return b, s[-2], t[-2]
-
-
-def _silent_ext_euclid(m: int, n: int, /) -> tuple[int, int, int]:
-    return ext_euclid(m, n, verbose=False)
 
 
 # Extremely busy function to prepare a nice printer for the extended algorithm.

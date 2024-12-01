@@ -216,5 +216,9 @@ def bsgs_log(x: int, base: int, modulus: int, *,
     return exp % order
 
 
-def _silent_bsgs_log(x: int, base: int, modulus: int) -> int:
+def discrete_log(x: int, base: int, modulus: int) -> int:
+    """Calculate a discrete logarithm using the baby-step giant-step algorithm.
+
+    See bsgs_log for details.
+    """
     return bsgs_log(x, base, modulus, verbose=False)
