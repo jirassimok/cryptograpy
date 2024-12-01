@@ -178,6 +178,9 @@ class Sieve:
 
     Indexing by numbers reveals whether they are prime, if they have already
     been generated.
+
+    Note that checking values in the sieve or iterating over it before
+    generating the values checked will produce inaccurate results.
     """
     @property
     def size(self) -> int:
