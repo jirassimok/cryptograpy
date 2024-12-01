@@ -58,7 +58,8 @@ def strong_prime_test(n: int, bases: Iterable[int], /,
         r += 1
         m //= 2
 
-    print(f'n = {n} = 2^{r} * {m}, bases={bases}')
+    # f'n = {n} = 2^{r} * {m}, bases={bases}'
+    print('n = ', n, ' = 2^', r, ' * ', m, ', bases=', bases, sep='')
     for b in bases:
         if not _test_prime_base(n, m=m, r=r, b=b, verbose=verbose):
             print('not prime to base', b)
