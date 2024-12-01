@@ -211,10 +211,6 @@ class RandomBitIterator(PRNG, random.Random):
         return super(PRNG, self).randrange(start, stop, step)
 
 
-class SystemRandomBitIterator(random.SystemRandom, PRNG):
+class SystemRandomBitIterator(random.SystemRandom, RandomBitIterator):
     """A RandomBitIterator based on random.SystemRandom.
     """
-    # SystemRandom's implementations should be prioritized over PRNG's,
-    # except for the inherited ones.
-    def randrange(self, start, stop=None, step=1):
-        return super(random.SystemRandom, self).randrange(start, stop, step)
