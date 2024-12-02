@@ -1,15 +1,9 @@
 """
 Utilities for working with primes.
-
-Much of this is reimplimentation of sympy facilities.
 """
 from array import array
 from collections.abc import Container, Iterable, Iterator
 from math import isqrt
-
-import sympy.ntheory as _sn
-
-from .util import alternate_impl, USE_SYMPY
 
 
 __all__ = ['primes', 'primerange', 'is_prime']
@@ -101,15 +95,6 @@ def candidate_primes():
             count(7, 6)))
 
 
-def _sn_primes(_s=_sn.Sieve(), /):
-    """Generate primes."""
-    from itertools import count
-    from sympy import sieve
-    for i in count(1):
-        yield sieve[i]
-
-
-@alternate_impl(USE_SYMPY, _sn_primes)
 def primes(*, _cache=PrimeCache([2, 3, 5, 7, 11, 13])) -> Iterator[int]:
     """Generate primes.
 
@@ -131,11 +116,8 @@ def primes(*, _cache=PrimeCache([2, 3, 5, 7, 11, 13])) -> Iterator[int]:
             yield c
 
 
-@alternate_impl(USE_SYMPY, True, _sn.primerange)
 def primerange(a: int, b: int | None = None, /) -> Iterator[int]:
     """Generate primes on [2, a) or [a, b).
-
-    See also sympy.ntheory.primerange.
     """
     if b is None:
         a, b = 2, a
@@ -149,7 +131,6 @@ def primerange(a: int, b: int | None = None, /) -> Iterator[int]:
         yield p
 
 
-@alternate_impl(USE_SYMPY, _sn.isprime)
 def is_prime(n, /):
     # return n in primerange(n+1)
     if n < 2:
@@ -362,4 +343,3 @@ class bits:
     def zero_at2(position):
         """May overflow a byte. Input must be from 0 to 7."""
         return 0b111111101111111 >> (7 - position)
-

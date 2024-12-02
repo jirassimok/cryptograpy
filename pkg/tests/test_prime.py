@@ -17,9 +17,6 @@ def take(iterator, n):
 class TestCase(unittest.TestCase):
     """Base class for test cases in this file.
     """
-    def setUp(self):
-        self.sympy_token = homework.util.USE_SYMPY.set(False)
-
     def assertEmpty(self, iterator, msg=None):
         """Assert that an iterator or generator is empty.
         """

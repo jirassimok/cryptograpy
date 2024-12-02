@@ -14,9 +14,6 @@ from typing import Any, cast, Never, overload, Protocol, TYPE_CHECKING
 
 VERBOSE: bool = False
 
-USE_SYMPY: ContextVar[bool] = ContextVar('USE_SYMPY_PRIMES', default=False)
-"""Whether to use sympy functions for various underlying operations.
-"""
 
 ## Typing helpers
 

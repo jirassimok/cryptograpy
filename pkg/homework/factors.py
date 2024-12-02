@@ -2,20 +2,12 @@ from collections import Counter
 from collections.abc import Iterator
 from math import prod, isqrt
 
-import sympy.ntheory as _sn
-
 from .prime import is_prime, primerange
-from .util import alternate_impl, USE_SYMPY
 
 
 __all__ = ['factorize', 'totient', 'Factors']
 
 
-def _sn_factorize(n):
-    return Factors(_sn.factorint(n), _safe=True)
-
-
-@alternate_impl(USE_SYMPY, _sn_factorize)
 def factorize(n, /):
     """Get prime factorization of n.
 
