@@ -2,7 +2,11 @@
 This module defines functions in two broad groups.
 
 - BitIterator: an iterator over bits
-- PRNG: a combination of BitIterator and random.Random
+- PRNG: a combination of BitIterator and random.Random.
+  The PRNG class is exported by pseudorandom.py rather than this module.
+
+These are used mainly as interfaces for the code implemented
+in the pseudorandom module.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
