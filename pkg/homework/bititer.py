@@ -10,7 +10,7 @@ from collections.abc import Iterable, Iterator
 from itertools import count
 import random
 
-from .integer_types import Bit as _Bit
+from .bit_class import Bit as _Bit
 
 
 __all__ = [
