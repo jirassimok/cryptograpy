@@ -4,12 +4,39 @@ import os
 from typing import overload
 import unittest
 
-import sympy.ntheory as sn
-
 from homework.homework4 import primitive_root, is_primitive_root, bsgs_log
 import homework.util
 
 from .test_fastexp import small_cases, filter_params
+
+# If sympy is not available, use alternate test. These will be slower.
+try:
+    import sympy.ntheory as _sn
+    isprime = _sn.isprime
+    compare_is_primitive_root = _sn.is_primitive_root
+except ImportError:
+    # For isprime, use my own implementation, safe to a little above 2**78
+    from homework.pseudoprime import is_prime as isprime
+
+    def compare_is_primitive_root(a, p):
+        """Test for primitive roots using repeated multiplication.
+
+        If 1 is encountered before the (p-1)th power, it's not a primitive
+        root.
+
+        If p is not prime, this test will not be accurate.
+        """
+        if a == 1:
+            return False
+        acc = a
+        for exp in range(2, p):
+            # for each power or a from a**2 to a**(p-1)
+            acc = acc * a % p
+            if acc == 1:
+                return exp == p - 1  # true only on last loop
+        else:
+            # Loop finished without finding a 1
+            raise ValueError('simple primitive root test failed')
 
 
 class TestPrimitiveRoot(unittest.TestCase):
@@ -39,7 +66,8 @@ class TestPrimitiveRoot(unittest.TestCase):
         homework.util.VERBOSE = False
 
     def assertIsRoot(self, p, r):
-        self.assertTrue(sn.is_primitive_root(r, p), msg=f'p={p}, root={r}')
+        self.assertTrue(compare_is_primitive_root(r, p),
+                        msg=f'p={p}, root={r}')
 
     def test_simple(self):
         for p, expected in self.simple_params:
@@ -56,12 +84,16 @@ class TestPrimitiveRoot(unittest.TestCase):
 
     def test_random_gen(self):
         # Test generating non-smallest primitive roots
-        for p in (457, 1021, 3371, 3863, 10847):
+        for p, smallest_root in ((457, 13),
+                                 (1021, 10),
+                                 (3371, 2),
+                                 (3863, 5),
+                                 (10847, 5)):
             # Try 10 times to get a primitive root that isn't the smallest.
             r = primitive_root(p, nocheck=True,
                                smallest=False,
                                base_tries=1000)
-            if r == sn.primitive_root(p):
+            if r == smallest_root:
                 self.fail(f'accidentally found smallest primitive root of {p};'
                           'try again')
             self.assertIsRoot(p, r)
@@ -80,12 +112,10 @@ class TestPrimitiveRoot(unittest.TestCase):
             self.assertIsRoot(p, root)
 
         # Large arguments don't get random order
-        p = 10513
-        self.assertEqual(primitive_root(p, smallest=False, base_tries=0),
-                         sn.primitive_root(p))
-        p = 12619
-        self.assertEqual(primitive_root(p, smallest=False, base_tries=0),
-                         sn.primitive_root(p))
+        p = 10781
+        self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 10)
+        p = 12911
+        self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 29)
 
 
 class TestIsPrimitiveRoot(unittest.TestCase):
@@ -104,7 +134,7 @@ class TestIsPrimitiveRoot(unittest.TestCase):
         for p in (73, 617, 1999):
             for x in range(2, p):
                 self.assertEqual(is_primitive_root(x, p),
-                                 sn.is_primitive_root(x, p),
+                                 compare_is_primitive_root(x, p),
                                  f'p={p}, potential root {x}')
 
     def test_with_factors(self):
@@ -113,7 +143,7 @@ class TestIsPrimitiveRoot(unittest.TestCase):
             factors = factorize(p - 1)
             for x in range(2, p):
                 self.assertEqual(is_primitive_root(x, p, factors=factors),
-                                 sn.is_primitive_root(x, p),
+                                 compare_is_primitive_root(x, p),
                                  f'p={p}, potential root {x}')
 
 
@@ -140,7 +170,7 @@ class TestBsgsLog(unittest.TestCase):
                                      | tuple[tuple[int, int, int], int, str]]:
         # Skip non-modular test cases from fastexp
         for args, *rest in filter_params(small_cases()):
-            if len(args) < 3 or args[2] is None or not sn.isprime(args[2]):
+            if len(args) < 3 or args[2] is None or not isprime(args[2]):
                 # skip cases without a prime modulus
                 continue
             yield args, *rest
