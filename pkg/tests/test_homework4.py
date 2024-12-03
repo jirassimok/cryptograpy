@@ -18,23 +18,20 @@ class TestPrimitiveRoot(unittest.TestCase):
         # Always look for only the smallest primitive root.
         return primitive_root(p, smallest=True)
 
-    _simple_params: tuple[int | tuple[int, int], ...] = (
-        (2, 1),
-        (4, 3), # I special-cased this in
+    simple_params: tuple[tuple[int, int], ...] = (
+        (2, 1),  # 2 is the only number with primitive root 1
+        (4, 3),  # I special-cased 4 in
         (3, 2),
         (5, 2),
         (7, 3),
-        37,
-        263,
-        997,
-        2111,
+        (41, 6),  # non-prime primitive root of a prime
+        (191, 19),
+        (263, 5),
+        (409, 21),  # another non-prime root
+        (997, 7),
+        (2111, 7),
     )
-    """Basic test cases.
-
-    Each case is either an (int, int) tuple of argument and expected result,
-    or just an argument (an int), which will be compared against
-    sympy.primitive_root.
-    """
+    """Basic test cases; pairs of (number, smallest primitive root)."""
 
     def setUp(self): # could use setUpClass
         """Disable verbose mode before testing.
@@ -45,12 +42,7 @@ class TestPrimitiveRoot(unittest.TestCase):
         self.assertTrue(sn.is_primitive_root(r, p), msg=f'p={p}, root={r}')
 
     def test_simple(self):
-        for arg in self._simple_params:
-            if isinstance(arg, int):
-                p, expected = arg, sn.primitive_root(arg)
-            else:
-                p, expected = arg
-
+        for p, expected in self.simple_params:
             with self.subTest(arg=p):
                 self.assertEqual(primitive_root(p, smallest=True), expected)
 
@@ -96,14 +88,10 @@ class TestPrimitiveRoot(unittest.TestCase):
 
 
 class TestIsPrimitiveRoot(unittest.TestCase):
-    _simple_params = TestPrimitiveRoot._simple_params
+    simple_params = TestPrimitiveRoot.simple_params
 
     def test_simple(self):
-        for arg in self._simple_params:
-            if isinstance(arg, int):
-                p, root = arg, sn.primitive_root(arg)
-            else:
-                p, root = arg
+        for p, root in self.simple_params:
             self.assertTrue(is_primitive_root(root, p), f'p={p}, root={root}')
 
     def test_errs(self):
