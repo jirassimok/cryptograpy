@@ -62,7 +62,8 @@ class TestPrimitiveRoot(unittest.TestCase):
                                smallest=False,
                                base_tries=1000)
             if r == sn.primitive_root(p):
-                print(f'(accidentally found smallest primitive root of {p})')
+                self.fail(f'accidentally found smallest primitive root of {p};'
+                          'try again')
             self.assertIsRoot(p, r)
 
     def test_try_first(self):
