@@ -93,11 +93,11 @@ class TestCheckPrime(unittest.TestCase):
             bases = {bases}
 
         for p in primes: # true witnesses to primality
-            self.assertTrue(strong_prime_test(p, bases), f'p={p}, bs={bases}')
+            self.assertTrue(strong_prime_test(p, bases), f'ps={p}, bs={bases}')
         for c in composites: # true witnesses to compositeness
             self.assertFalse(strong_prime_test(c, bases), f'c={c}, bs={bases}')
         for p in pseudoprimes: # false witnesses to primality
-            self.assertTrue(strong_prime_test(p, bases), f'p={p}, bs={bases}')
+            self.assertTrue(strong_prime_test(p, bases), f'pr={p}, bs={bases}')
 
     # All pseudoprimes below pulled from OEIS (see A001262 for refs)
 
