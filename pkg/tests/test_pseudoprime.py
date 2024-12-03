@@ -19,25 +19,25 @@ class TestCheckPrime(unittest.TestCase):
     # All pseudoprimes below pulled from OEIS (see A001262 for refs)
 
     def test_base_2(self):
-        self.auto_test_bases(2, (2047, 3277, 4033, 4681, 8321, 15841, 29341))
+        self.auto_check_bases(2, (2047, 3277, 4033, 4681, 8321, 15841, 29341))
 
     def test_base_3(self):
-        self.auto_test_bases(3, (121, 703, 1891, 3281, 8401, 8911, 10585))
+        self.auto_check_bases(3, (121, 703, 1891, 3281, 8401, 8911, 10585))
 
     def test_base_5(self):
-        self.auto_test_bases(5, (781, 1541, 5461, 5611, 7813, 13021, 14981))
+        self.auto_check_bases(5, (781, 1541, 5461, 5611, 7813, 13021, 14981))
 
     def test_bases_2_3(self):
-        self.auto_test_bases({2, 3}, [1373653, 1530787, 1987021, 2284453])
+        self.auto_check_bases({2, 3}, [1373653, 1530787, 1987021, 2284453])
 
     def test_bases_2_5(self):
-        self.auto_test_bases({2, 5}, [1907851, 4181921, 4469471, 5256091])
+        self.auto_check_bases({2, 5}, [1907851, 4181921, 4469471, 5256091])
 
     def test_bases_2_3_5(self):
-        self.auto_test_bases({2, 3, 5}, [25326001, 161304001, 960946321])
+        self.auto_check_bases({2, 3, 5}, [25326001, 161304001, 960946321])
 
     def test_bases_2_3_5_7(self):
-        self.auto_test_bases({2, 3, 5, 7}, [3215031751, 118670087467])
+        self.auto_check_bases({2, 3, 5, 7}, [3215031751, 118670087467])
 
     def test_4000(self):
         """Test the first 4000 positive integers against a few bases.
@@ -50,8 +50,8 @@ class TestCheckPrime(unittest.TestCase):
                                  n in PRIMES_BELOW_4000,
                                  f'n = {n}, bases = {bases}')
 
-    def auto_test_bases(self, bases: int | set[int],
-                        pseudoprimes: Iterable[int], /):
+    def auto_check_bases(self, bases: int | set[int],
+                         pseudoprimes: Iterable[int], /):
         """Given a base or set of bases and a list of pseudoprimes, test the
         primality checker.
 
