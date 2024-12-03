@@ -123,7 +123,11 @@ def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
     """
     # TODO: Can I just substitute totient() and use this for non-primes?
     #       If not, I could check for primitive-rootable-numbers.
-    if not is_prime(p):
+    if p == 4:
+        return b == 3
+    elif p == 2:
+        return b == 1
+    elif not is_prime(p):
         raise ValueError('p must be prime')
     if factors is None:
         phi = p - 1
