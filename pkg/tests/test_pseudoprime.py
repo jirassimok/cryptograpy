@@ -23,8 +23,8 @@ def find_near(pseudoprimes: set[int]) -> tuple[set[int], set[int]]:
     primes = set()
     composites = set()
     for pp in pseudoprimes:
-        hi = Near(pp)
-        lo = Near(pp)
+        hi = Near()
+        lo = Near()
         for i in count(2, 2):
             # look at numbers 2, 4, ... away from pp
             a = pp + i
