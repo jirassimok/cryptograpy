@@ -1,13 +1,17 @@
 from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import count
-from typing import cast
+from typing import cast, Literal
 import unittest
 
-from sympy.ntheory import isprime as sympy_isprime
 from homework.pseudoprime import strong_prime_test
 
-from .test_prime import PRIMES_BELOW_4000
+from . import test_prime
+
+
+PRIMES_BELOW_4000 = set(test_prime.PRIMES_BELOW_4000)
+COMPOSITES_BELOW_4000 = PRIMES_BELOW_4000.symmetric_difference(range(1, 4000))
+"""Composite numbers below 4000, and also 1."""
 
 
 class TestCheckPrime(unittest.TestCase):
@@ -19,13 +23,18 @@ class TestCheckPrime(unittest.TestCase):
     # All pseudoprimes below pulled from OEIS (see A001262 for refs)
 
     def test_base_2(self):
-        self.auto_check_bases(2, (2047, 3277, 4033, 4681, 8321, 15841, 29341))
+        self.check_base_4000(2, (2047, 3277))
+        self.auto_check_bases(2, (4033, 4681, 8321, 15841, 29341),
+                              no_sympy='ignore')
 
     def test_base_3(self):
-        self.auto_check_bases(3, (121, 703, 1891, 3281, 8401, 8911, 10585))
+        self.check_base_4000(3, (121, 703, 1891, 3281))
+        self.auto_check_bases(3, (8401, 8911, 10585), no_sympy='ignore')
 
     def test_base_5(self):
-        self.auto_check_bases(5, (781, 1541, 5461, 5611, 7813, 13021, 14981))
+        self.check_base_4000(5, (781, 1541))
+        self.auto_check_bases(5, (5461, 5611, 7813, 13021, 14981),
+                              no_sympy='ignore')
 
     def test_bases_2_3(self):
         self.auto_check_bases({2, 3}, [1373653, 1530787, 1987021, 2284453])
@@ -39,7 +48,7 @@ class TestCheckPrime(unittest.TestCase):
     def test_bases_2_3_5_7(self):
         self.auto_check_bases({2, 3, 5, 7}, [3215031751, 118670087467])
 
-    def test_4000(self):
+    def test_4000_multi_base(self):
         """Test the first 4000 positive integers against a few bases.
         """
         for bases in [(2, 3), (2, 5), (3, 5), (13, 29), (1301, 1871)]:
@@ -51,17 +60,49 @@ class TestCheckPrime(unittest.TestCase):
                                  f'n = {n}, bases = {bases}')
 
     def auto_check_bases(self, bases: int | set[int],
-                         pseudoprimes: Iterable[int], /):
+                         pseudoprimes: Iterable[int], /,
+                         *, no_sympy: Literal['skip', 'ignore'] = 'skip'):
         """Given a base or set of bases and a list of pseudoprimes, test the
         primality checker.
 
         Finds the nearest primes and compsites to each of the given
         pseudoprimes (in both directions), and tests those as well as the
         pseudoprimes themselves.
+
+        If sympy is not available, no_sympy governs this function's behavior.
+        If no_sympy is 'skip' (the default), skip the test. If no_sympy is
+        'ignore', treat the test as passing.
         """
+        try:
+            import sympy  # noqa: F401
+        except ImportError:
+            if no_sympy == 'skip':
+                self.skipTest('auto_check_bases requires sympy')
+            elif no_sympy == 'ignore':
+                return
+            else:
+                raise ValueError('invalid test auto_check_bases(no_sympy)')
+
         pseudoprimes = set(pseudoprimes)
         primes, composites = find_near(pseudoprimes)
 
+        self.check_bases(bases, pseudoprimes, primes, composites)
+
+    def check_base_4000(self, base: int, pseudoprimes: Iterable[int]):
+        """Check a base against the numbers below 4000."""
+        pseudoprimes = set(pseudoprimes)
+        self.check_bases(base,
+                         pseudoprimes,
+                         PRIMES_BELOW_4000 - {base},
+                         COMPOSITES_BELOW_4000 - pseudoprimes)
+
+    def check_bases(self, bases: int | set[int],
+                    pseudoprimes: Iterable[int],
+                    primes: Iterable[int],
+                    composites: Iterable[int]):
+        """Given a base or set of bases, check that the values in each of the
+        other arguments are classified as expected.
+        """
         if isinstance(bases, int):
             bases = {bases}
 
@@ -74,9 +115,9 @@ class TestCheckPrime(unittest.TestCase):
 
 
 def find_near(pseudoprimes: set[int]) -> tuple[set[int], set[int]]:
-    """Find the nearest true prime and composite above and below each given
-    pseudoprime (excluding the pseudoprimes). Returns a set of primes and a set
-    of composites.
+    """Find the nearest (odd) true prime and composite above and below each
+    given pseudoprime (excluding the pseudoprimes). Returns a set of primes and
+    a set of composites.
 
     Note: can't actually check that the returned primes aren't unknown
     pseudoprimes.
@@ -123,7 +164,8 @@ class Near:
         """"Assign x to the saved prime or composite, as appropraite,
         if not already set.
         """
-        prime = sympy_isprime(x)
+        from sympy.ntheory import isprime
+        prime = isprime(x)
         if self.m_prime is None and prime:
             self.m_prime = x
         elif self.m_composite is None and not prime:
