@@ -104,7 +104,7 @@ class TestIsPrimitiveRoot(unittest.TestCase):
                 p, root = arg, sn.primitive_root(arg)
             else:
                 p, root = arg
-        self.assertTrue(is_primitive_root(root, p), f'p={p}, root={root}')
+            self.assertTrue(is_primitive_root(root, p), f'p={p}, root={root}')
 
     def test_errs(self):
         # non-prime p
