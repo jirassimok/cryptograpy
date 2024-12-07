@@ -49,7 +49,7 @@ def keygen(p: int, q: int, *, e: int | PRNG) -> tuple[PrivateKey, PublicKey]:
 
     if isinstance(e, int):
         if gcd(e, order) != 1:
-            raise ValueError('secret key is not coprime to p*q')
+            raise ValueError('secret key is not coprime to (p-1)*(q-1)')
     else:
         rng = e
         e = rng.randrange(2, order)
