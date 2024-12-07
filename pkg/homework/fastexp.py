@@ -57,7 +57,18 @@ def fastexp(base: int, exp: int, modulus: int | None = None,
 def pow(base: int, exp: int, mod: int | None = None) -> int:
     """Computer base**exp % mod using exponentiation by squaring.
 
-    Like fastexp, but never verbose.
+    Like fastexp, but never verbose, and with parameters named like
+    builtin.pow.
+
+    Parameters
+    ----------
+    base : int
+        The number to exponentiate.
+    exp : int
+        The power to exponentiate by.
+    mod : int, optional
+        If given, exponentiate mod this number. Otherwise, perform non-modular
+        exponentiation.
     """
     return fastexp(base, exp, mod, verbose=False)
 

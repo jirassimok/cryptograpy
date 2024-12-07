@@ -77,6 +77,11 @@ def gcd(a: int, b: int, /) -> int:
     """Compute greatest common divisor using the Euclidean algorithm.
 
     Like euclid, but never verbose.
+
+    Parameters
+    ----------
+    (a) : int
+    (b) : int
     """
     return euclid(a, b, verbose=False)
 
@@ -85,6 +90,11 @@ def modular_inverse(n: int, /, modulus: int):
 
     Based on ext_euclid, but only returns one of the coefficients (as
     a positive number mod the modulus) and is never verbose.
+
+    Parameters
+    ----------
+    (n) : int
+    modulus : int
     """
     return ext_euclid(modulus, n, verbose=False)[-1] % modulus
 
@@ -110,6 +120,11 @@ def euclid_recursive(m: int, n: int, /) -> int:
 @check_signs
 def euclid(m: int, n: int, /, *, verbose:Verbosity=None) -> int:
     """Find the GCD of m and n using the Euclidean algorithm.
+
+    Parameters
+    ----------
+    (m) : int
+    (n) : int
 
     Keyword parameters
     ------------------
@@ -163,6 +178,11 @@ def ext_euclid(m: int, n: int, /, *,
 
     Given m and n, returns g, s, and t, such that g is the greatest common
     divisor of m and n, and m*s + n*t == g.
+
+    Parameters
+    ----------
+    (m) : int
+    (n) : int
 
     Keyword parameters
     ------------------
@@ -282,6 +302,11 @@ def ext_euclid_magic_index(m: int, n: int, /, *,
     This implementation uses a custom class to track the algorithms steps
     in a way that makes the algorithm's main loop easy to understand.
 
+    Parameters
+    ----------
+    (m) : int
+    (n) : int
+
     Keyword parameters
     ------------------
     verbose : bool, optional
@@ -324,6 +349,11 @@ def ext_euclid_full_table(m: int, n: int, /, *,
     list for the duration of the algorithm. This is the least-aesthetically-
     pleasing implementation to read from this module.
 
+    Parameters
+    ----------
+    (m) : int
+    (n) : int
+
     Keyword parameters
     ------------------
     verbose : bool, optional
@@ -361,6 +391,11 @@ def ext_euclid_full_columns(m: int, n: int, /, *,
     used in the algorithm as a separate list, replicating the excessive space
     usage of ext_euclid_full_table, but without sacrificing readability quite
     as much, in my opinion.
+
+    Parameters
+    ----------
+    (m) : int
+    (n) : int
 
     Keyword parameters
     ------------------
