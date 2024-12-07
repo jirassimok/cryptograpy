@@ -16,6 +16,21 @@ from .sieve import Sieve
 __all__ = ['factorize', 'totient', 'Factors']
 
 
+try:
+    # This warning is mostly because of the name similarity with the
+    # more-imporant factor.py.
+    def warn():
+        import sys
+        import warnings
+        if 'unittest' not in sys.modules:
+            msg = (f"The {__name__} module is outdated and inefficient."
+                   " See the similarly-named factor module instead.")
+            warnings.warn(msg)
+    warn()
+finally:
+    del warn
+
+
 def factorize(n, /):
     """Get prime factorization of n.
 

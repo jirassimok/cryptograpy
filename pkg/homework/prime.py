@@ -4,6 +4,19 @@ Utilities for working with primes.
 from collections.abc import Container, Iterable, Iterator
 from math import isqrt
 
+try:
+    # This module is kept because I use its primerange function in tests.
+    # It shouldn't actually be used elsewhere, and probably should be moved.
+    def warn():
+        import sys
+        import warnings
+        if 'unittest' not in sys.modules:
+            msg = (f"The {__name__} module should not be used."
+                   " See the sieve and pseudoprime modules instead.")
+            warnings.warn(msg)
+    warn()
+finally:
+    del warn
 
 __all__ = ['primes', 'primerange', 'is_prime']
 
