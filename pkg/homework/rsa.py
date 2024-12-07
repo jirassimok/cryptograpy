@@ -69,3 +69,18 @@ def encrypt(key: PublicKey, message: int) -> int:
 def decrypt(key: PrivateKey, ciphertext: int) -> int:
     """Decrypt a ciphertext using the given private key."""
     return fastexp(ciphertext, key.d, key.n)
+
+
+def crack(key: PublicKey, ciphertext: int) -> int:
+    """Decrypt a ciphertext by factoring the public key's modulus.
+
+    Uses Pollard's rho algorithm.
+    """
+    n, e = key
+
+    p = find_factor_rho(n)
+    q = n // p
+
+    privkey, _ = keygen(p, q, e=e)
+
+    return decrypt(privkey, ciphertext)
