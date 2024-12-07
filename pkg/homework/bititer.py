@@ -1,12 +1,25 @@
-"""
+"""BitIteration utilities
+
 This module defines functions in two broad groups.
-
-- BitIterator: an iterator over bits
-- PRNG: a combination of BitIterator and random.Random.
-  The PRNG class is exported by pseudorandom.py rather than this module.
-
 These are used mainly as interfaces for the code implemented
 in the pseudorandom module.
+
+
+Key Classes
+-----------
+BitIterator : abstract
+    Represents an iterator over bits, with methods to get larger values.
+PRNG : abstract
+    Combines BitIterator with Python's random.Random interface. This class
+    is also exported from the 'pseudorandom' module.
+
+
+Extra Classes
+-------------
+RandomBitIterator
+    A subclass of PRNG that internally uses random.Random.
+SystemRandomBitIterator
+    A subclass of PRNG that internally uses random.SystemRandom.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -66,15 +79,15 @@ class BitIterator(ABC, Iterator[Bit]):
         ...
 
     def next_bit(self) -> Bit:
-        """Generate a pseudorandom bit."""
+        """Generate a bit."""
         return next(self)
 
     def next_byte(self) -> int:
-        """Generate a pseudorandom byte."""
+        """Generate a byte."""
         return self.next_int(8)
 
     def next_int(self, nbits: int) -> int:
-        """Generate a pseudorandom nbits-bit integer."""
+        """Generate an nbits-bit integer."""
         return pack_bits(next(self) for _ in range(nbits))
 
     def __iter__(self) -> Iterator[Bit]:
