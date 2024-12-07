@@ -100,14 +100,14 @@ class Sieve:
         while p := self._find_true(cursor):
             # If the sieve was filled asynchronously, stop filling it.
             if not self._full:
-                self.setmultiples(p)
+                self._setmultiples(p)
             yield p
             cursor = p + 1
         else:
             self._full = True
 
     # TODO: can this be made more efficient by pregenerating bit masks?
-    def setmultiples(self, n, /):
+    def _setmultiples(self, n, /):
         """Mark all multples of n as non-prime, starting with n**2.
         """
         self._toindex(n)
