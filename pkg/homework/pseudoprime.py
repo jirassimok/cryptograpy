@@ -64,7 +64,7 @@ def strong_prime_test(n: int, bases: Iterable[int], /,
         r += 1
         m //= 2
 
-    # f'n = {n} = 2^{r} * {m}, bases={bases}'
+    # === print(f'n = {n} = 2^{r} * {m}, bases={bases}')
     print('n = ', n, ' = 2^', r, ' * ', m, ', bases=', bases, sep='')
     for b in bases:
         if not _test_prime_base(n, m=m, r=r, b=b, verbose=verbose):
@@ -117,14 +117,25 @@ def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
 def is_prime(n: int) -> bool:
     """Check probabilistically if a number is prime.
 
-    Is accurate for all n up to 318665857834031151167460 (> 2**78).
+    Is accurate for all n up to 3317044064679887385961980, which is over 2**82.
+
+    This test is based on the known largest pseudoprimes relative to the first
+    14 or fewer primes.
+
+    References
+    ----------
+    OEIS Foundation Inc. (2024), Entry A014233 in The On-Line Encyclopedia of
+        Integer Sequences, https://oeis.org/A014233
+    Yupeng Jiang, Yingpu Deng (2014), Strong pseudoprimes to the first 9 prime
+        bases, https://doi.org/10.1090/S0025-5718-2014-02830-5
+
+    Parameters
+    ----------
+    n : integer
+        The number to check.
     """
     if n % 2 == 0 or n % 3 == 0 or n < 2:
         return False
-
-    # Reference:
-    # OEIS sequence A014233, pseudoprimes relative to first n primes as bases
-    # Also referenced: https://doi.org/10.1090/S0025-5718-2014-02830-5
 
     primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43)
 
