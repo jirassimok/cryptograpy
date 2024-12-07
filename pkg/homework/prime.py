@@ -100,8 +100,6 @@ def primes(*, _cache=PrimeCache([2, 3, 5, 7, 11, 13])) -> Iterator[int]:
 
     Caches primes across calls.
     This uses trial division, so it will be inefficient for large primes.
-
-    This method is the basis for its entire module.
     """
     known = _cache
     for c in candidate_primes():
@@ -132,6 +130,8 @@ def primerange(a: int, b: int | None = None, /) -> Iterator[int]:
 
 
 def is_prime(n, /):
+    """Primality test by trial division.
+    """
     # return n in primerange(n+1)
     if n < 2:
         return False
