@@ -156,13 +156,21 @@ class TestBsgsLog(unittest.TestCase):
         homework.util.VERBOSE = False
 
     @overload
-    def assertLog(self, base, mod, *, power=None): ...
+    def assertLog(self, base: int, mod: int, *, power: int): ...
 
     @overload
-    def assertLog(self, base, mod, *, exp=None): ...
+    def assertLog(self, base: int, mod: int, *, exp: int): ...
 
     def assertLog(self, base, mod, *, exp=None, power=None):
-        # Main test function; tests bsgs_log against builtin pow.
+        """Assert that bsgs_log(power, base, mod) = exp.
+
+        Actually, this asserts only that bsgs_log finds a correct exponent,
+        not that it finds the given exponent in particular, if one is given.
+
+        Exactly one of power and exp should be given.
+        (If power is given, exp is not used. If exp is given, it is used
+        to find the power.)
+        """
         if power is None:
             power = pow(base, exp, mod)
         self.assertEqual(power, pow(base, bsgs_log(power, base, mod), mod))
@@ -170,18 +178,28 @@ class TestBsgsLog(unittest.TestCase):
     def fastexp_params(self
                        ) -> Iterator[tuple[tuple[int, int, int], int]
                                      | tuple[tuple[int, int, int], int, str]]:
-        # Skip non-modular test cases from fastexp
         for args, *rest in filter_params(small_cases()):
             if len(args) < 3 or args[2] is None or not isprime(args[2]):
                 # skip cases without a prime modulus
+                # (and without any modulus)
                 continue
             yield args, *rest
 
     def test_fastexp_params(self) -> None:
         """Test using the numbers from the fastexp tests."""
         for (base, _, mod), power, *msg in self.fastexp_params():
+            # The exponent used in fastexp tests isn't necessarily the same one
+            # we'll get from bsgs_log, so we have to test it differently.
             with self.subTest(*msg, args=(power, base, mod)):
                 self.assertLog(base, mod, power=power)
+
+    def test_basic(self) -> None:
+        """A few basic test cases."""
+        # The examples from the lecture notes
+        args = (3, 2, 101)
+        self.assertEqual(bsgs_log(*args), 69, args)
+        args = (3, 2, 29)
+        self.assertEqual(bsgs_log(*args), 5, args)
 
     def test_no_log(self):
         with self.assertRaises(ValueError):
