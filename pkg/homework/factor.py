@@ -5,7 +5,7 @@ from math import floor, log
 
 from .euclid import euclid as gcd
 from .fastexp import fastexp
-from .prime import Sieve
+from .sieve import Sieve
 from .pseudorandom import PRNG
 from .util import is_verbose, printer, takebetween, Verbosity
 
