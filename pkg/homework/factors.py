@@ -1,8 +1,16 @@
+"""
+Extraneous factor utilities.
+
+These are all based on factorization by trial division and should not generally
+be used.
+"""
+# TODO: Use the new algorithms in factor.py in here.
 from collections import Counter
 from collections.abc import Iterator
 from math import prod, isqrt
 
-from .prime import is_prime, primerange
+from .pseudoprime import is_prime
+from .sieve import Sieve
 
 
 __all__ = ['factorize', 'totient', 'Factors']
@@ -32,7 +40,7 @@ def totient(n, /):
 def _generate_prime_factors(n) -> Iterator[int]:
     """Generate the prime factors of n.
     """
-    for p in primerange(isqrt(n) + 1):
+    for p in Sieve(isqrt(n) + 1).generate():
         while n % p == 0:
             yield p
             n //= p
