@@ -77,7 +77,7 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
     Keyword Parameters
     ------------------
     primes : prime.Sieve or iterable of int, optional
-        A sieve of primes containing the factor base, or an iterable that
+        A Sieve of primes containing the factor base, or an iterable that
         will produce consecutive primes starting at 2, at least up to the
         bound. If not given, a default sieve will be used.
     verbose : bool, optional

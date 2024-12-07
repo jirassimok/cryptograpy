@@ -111,7 +111,7 @@ def _test_prime_base(n: int, /, *, r: int, m: int, b: int,
 def is_prime(n: int) -> bool:
     """Check probabilistically if a number is prime.
 
-    Is accurate for all n up to 318665857834031151167460.
+    Is accurate for all n up to 318665857834031151167460 (> 2**78).
     """
     if n % 2 == 0 or n % 3 == 0 or n < 2:
         return False

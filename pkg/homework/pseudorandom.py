@@ -243,7 +243,8 @@ def naor_reingold(nbits, p, q,
         Another nbits-bit prime.
     pairs : iterable of pairs of ints
         The 2*nbits random numbers from 1 to p*q to use in the algorithm.
-        They must already be paired up.
+        They must already be paired up. If you want to autogenerate them,
+        use NaorReingold.from_rng instead.
     square_root : int
         A number coprime to p*q.
     r : sequence of ints

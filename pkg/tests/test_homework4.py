@@ -9,7 +9,7 @@ import homework.util
 
 from .test_fastexp import small_cases, filter_params
 
-# If sympy is not available, use alternate test. These will be slower.
+# If sympy is not available, use alternate tests. These will be slower.
 try:
     import sympy.ntheory as _sn
     isprime = _sn.isprime
@@ -175,7 +175,7 @@ class TestBsgsLog(unittest.TestCase):
                 continue
             yield args, *rest
 
-    def test_basic(self) -> None:
+    def test_fastexp_params(self) -> None:
         """Test using the numbers from the fastexp tests."""
         for (base, _, mod), power, *msg in self.fastexp_params():
             with self.subTest(*msg, args=(power, base, mod)):
