@@ -50,16 +50,6 @@ def find_factor_rho(n, *, tries=0):
 _sieve = Sieve(10_000)
 
 
-class Cache(defaultdict[int, int]):
-    """A defaultdict that passes its missing keys to its default factory.
-    """
-    def __init__(self, default_factory: Callable[[int], int]):
-        super().__init__(default_factory)  # type: ignore[arg-type]
-
-    def __missing__(self, key):
-        return self.default_factory(key)
-
-
 def find_factor_pm1(n: int, bound: int, rng: PRNG,
                     *, primes: Sieve | Iterable[int] | None = None,
                     verbose: Verbosity = None):
@@ -139,6 +129,16 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
             assert g == 1, 'we only run out of primes when g is always 1'
             raise ValueError(
                 f'{n} has no factors 1 greater than a {bound}-smooth number')
+
+
+class Cache(defaultdict[int, int]):
+    """A defaultdict that passes its missing keys to its default factory.
+    """
+    def __init__(self, default_factory: Callable[[int], int]):
+        super().__init__(default_factory)  # type: ignore[arg-type]
+
+    def __missing__(self, key):
+        return self.default_factory(key)
 
 
 class CachingIterable[T](Iterable[T]):
