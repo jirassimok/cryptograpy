@@ -1,5 +1,5 @@
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Iterator
 from itertools import count
 from math import floor, log
 
@@ -61,7 +61,7 @@ class Cache(defaultdict[int, int]):
 
 
 def find_factor_pm1(n: int, bound: int, rng: PRNG,
-                    *, primes: Sieve | None = None,
+                    *, primes: Sieve | Iterable[int] | None = None,
                     verbose: Verbosity = None):
     """Find a factor of n using Pollard's p-1 algorithm.
 
@@ -76,10 +76,10 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
 
     Keyword Parameters
     ------------------
-    primes : prime.Sieve
-        A sieve of primes containing the factor base. If not given, a default
-        sieve will be used if it is large enough; otherwise, the default sieve
-        will be replaced with a larger one.
+    primes : prime.Sieve or iterable of int, optional
+        A sieve of primes containing the factor base, or an iterable that
+        will produce consecutive primes starting at 2, at least up to the
+        bound. If not given, a default sieve will be used.
     verbose : bool, optional
         If false, print nothing. If true, or if not given and util.VERBOSE
         is true, print some of the intermediate values of the algorithm.
@@ -89,16 +89,25 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
     print = printer(is_verbose(verbose))
 
     if primes is None:
+        # If the default sieve is too small, replace it with a bigger one.
+        if _sieve.size <= bound:
+            # round B up to a multiple of 16 for pointless storage optimziation
+            _sieve = Sieve(bound + (-bound % 16))
         primes = _sieve
-    if primes.size <= bound:
-        # round B up to a multiple of 16 for pointless storage optimziation
-        primes = _sieve = Sieve(bound + (-bound % 16))
+    elif isinstance(primes, Sieve) and primes.size <= bound:
+        raise ValueError('provided sieve does not cover the bound')
 
-    # We use the same p**log_{p}(n) for each b, so cache them.
+    # Unify the types of prime providers
+    if isinstance(primes, Sieve):
+        primes = primes.generate()
+    primes = CachingIterable(primes)
+
     def get_exponent(p):
         L = floor(log(n, p))
         print('  (l is ', L, ')', sep='')
         return fastexp(p, L)
+
+    # We use the same p**log_{p}(n) for each b, so cache them.
     exponents = Cache(get_exponent)
 
     while True:
@@ -112,7 +121,7 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
         # else g == 1
         assert g == 1, '1 <= g <= n is always true'
 
-        for p in takebetween(primes.generate(), 1, bound + 1):
+        for p in takebetween(primes, 1, bound + 1):
             e = exponents[p]
             b = fastexp(b, e, n)
             g = gcd(b - 1, n)
@@ -130,3 +139,27 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
             assert g == 1, 'we only run out of primes when g is always 1'
             raise ValueError(
                 f'{n} has no factors 1 greater than a {bound}-smooth number')
+
+
+class CachingIterable[T](Iterable[T]):
+    """An iterable that caches its values the first time they are seen.
+    """
+    def __init__(self, base: Iterable[T]):
+        self.base = iter(base)
+        self.cache: list[T] = []
+
+    def __iter__(self) -> Iterator[T]:
+        cache = self.cache
+        it = self.base
+        i = -1
+        while True:
+            i += 1
+            if i >= len(cache):
+                try:
+                    new = next(it)
+                except StopIteration:
+                    return
+                cache.append(new)
+                yield new
+            else:
+                yield cache[i]
