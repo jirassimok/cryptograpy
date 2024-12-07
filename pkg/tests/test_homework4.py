@@ -113,9 +113,11 @@ class TestPrimitiveRoot(unittest.TestCase):
 
         # Large arguments don't get random order
         p = 10781
-        self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 10)
+        self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 10,
+                         p)
         p = 12911
-        self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 29)
+        self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 23,
+                         p)
 
 
 class TestIsPrimitiveRoot(unittest.TestCase):
