@@ -1,3 +1,16 @@
+"""RSA encryption
+
+RSA is implemented here as a collection of methods that operate on tuple-valued
+keys (NamedTuples are provided for convenience). In the key tuples, the modulus
+(n) is always the first value, and the exponent is the second.
+
+Key Functions
+-------------
+keygen
+encrypt
+decrypt
+crack
+"""
 from typing import NamedTuple
 
 from .euclid import gcd, modular_inverse

@@ -1,5 +1,7 @@
-"""
-Utilities for working with primes.
+"""Extra utilities for working with primes.
+
+These are highly inefficient and should not be used.
+Refer to the 'pseudoprime' and 'sieve' modules instead.
 """
 from collections.abc import Container, Iterable, Iterator
 from math import isqrt

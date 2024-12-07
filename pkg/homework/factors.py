@@ -1,8 +1,7 @@
-"""
-Extraneous factor utilities.
+"""Extraneous factor utilities.
 
 These are all based on factorization by trial division and should not generally
-be used.
+be used. For more-useful factorization, see the 'factor' module.
 """
 # TODO: Use the new algorithms in factor.py in here.
 from collections import Counter

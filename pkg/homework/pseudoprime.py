@@ -1,5 +1,11 @@
 # -*- flycheck-checker: python-mypy; -*-
-# Miller-Rabin primality test
+"""Miller-Rabin primality testing
+
+Key Functions
+-------------
+strong_prime_test
+is_prime
+"""
 from __future__ import annotations
 from collections.abc import Iterable
 

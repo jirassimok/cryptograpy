@@ -1,4 +1,13 @@
 # -*- flycheck-checker: python-pyright; -*-
+"""Euclidean algorithm and family.
+
+Key Functions
+-------------
+euclid
+ext_euclid
+gcd
+modular_inverse
+"""
 from __future__ import annotations
 import builtins
 from collections import deque
@@ -13,11 +22,9 @@ from .util import (alternate_impl, copy_callable_type, cr, Verbosity,
 
 __all__ = [
     'euclid',
-    'euclid_recursive',
     'ext_euclid',
-    'ext_euclid_magic_index',
-    'ext_euclid_full_table',
-    'ext_euclid_full_columns'
+    'gcd',
+    'modular_inverse',
 ]
 
 ## Extra setup

@@ -1,3 +1,12 @@
+"""Primitive roots and discrete logarithms
+
+Key Functions
+-------------
+primitive_root
+is_primitive_root
+bsgs_log
+discrete_log
+"""
 import math
 from random import randrange, sample as randsample
 

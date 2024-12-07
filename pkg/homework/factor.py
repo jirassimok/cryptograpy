@@ -1,3 +1,10 @@
+"""Factorization algorithms
+
+Key Functions
+-------------
+find_factor_rho
+find_factor_pm1
+"""
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator
 from itertools import count

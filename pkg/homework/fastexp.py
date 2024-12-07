@@ -1,10 +1,22 @@
 # -*- flycheck-checker: python-mypy; -*-
 # mypy: allow-redefinition
 # Homework 3
+"""Exponentiation by squaring, aka fast exponentiation
 
+Key Functions
+-------------
+fastexp
+pow
+"""
 from typing import Literal
 
 from .util import is_verbose, Verbosity
+
+
+__all__ = [
+    'fastexp',
+    'pow',
+]
 
 
 ## Implementation

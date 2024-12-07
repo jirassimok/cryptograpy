@@ -1,11 +1,23 @@
-"""
-Key features of this module:
+"""Cryptographically-secure pseudorandom number generation
 
-- blum_blum_shub: simple, readable implementation of that algorithm
-- BlumBlumShub: more complex implementation (implements random.Random)
-- naor_reingolg: somewhat simple, readable implementation of that algorithm
-- NaorReingold: more-complex implementation of that algorithm that also
-  implements random.Random
+The implementations of the algorithms in this module are fairly
+straightforward, but the class versions are more complex and depend on the
+'bititer' module.
+
+Key Functions
+-------------
+blum_blum_shub
+    Simple, readable implementation of that algorithm.
+naor_reingold
+    Somewhat simple, readable implementation of that algorithm.
+
+Key Classes
+-----------
+BlumBlumShub
+    More complex implementation that directly implements random.Random.
+NaorReingold
+    More-complex implementation of that algorithm that directly implements
+    random.Random. Allows initialization from another RNG.
 """
 from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator, Sequence
@@ -25,8 +37,6 @@ __all__ = [
     'BlumBlumShub',
     'naor_reingold',
     'NaorReingold',
-    'split_bits',
-    'dot',
     'PRNG', # re-exported
 ]
 

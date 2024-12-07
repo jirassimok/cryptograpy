@@ -1,3 +1,16 @@
+"""ElGamal encryption
+
+Key Functions
+-------------
+crack
+ElGamal.encrypt
+ElGamal.decrypt
+
+Key Classes
+-----------
+Key
+ElGamal
+"""
 from typing import NamedTuple
 
 from .euclid import modular_inverse
