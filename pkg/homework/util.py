@@ -8,6 +8,9 @@ from operator import itemgetter
 from typing import Any, cast, Never, overload, Protocol, TYPE_CHECKING
 
 
+# TODO: Split this into a few modules. (typing_util, log_util, iter_util)
+
+
 ## Settings
 
 # These should be contextvars or something else importable.
