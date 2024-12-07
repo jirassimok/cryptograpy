@@ -30,6 +30,9 @@ def primitive_root(p, *,
     For small p, the fallback exhaustive search is performed in random order.
     For large p, it is performed in ascending order.
 
+    (When looking for a random primitive root, this function uses Python's
+    default RNG.)
+
     Parameters
     ----------
     p : int
@@ -141,7 +144,7 @@ def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
 
 ## Baby-step Giant-step algorithm
 
-def bsgs_log(x: int, base: int, modulus: int, *,
+def bsgs_log(x: int, /, base: int, modulus: int, *,
              verbose: Verbosity = None) -> int:
     """Compute the discrete log of x with the given base and modulus.
 
@@ -220,9 +223,9 @@ def bsgs_log(x: int, base: int, modulus: int, *,
     return exp % order
 
 
-def discrete_log(x: int, base: int, modulus: int) -> int:
+def discrete_log(x: int, /, base: int, modulus: int) -> int:
     """Calculate a discrete logarithm using the baby-step giant-step algorithm.
 
-    See bsgs_log for details.
+    Like bsgs_log, but never verbose.
     """
     return bsgs_log(x, base, modulus, verbose=False)
