@@ -1,8 +1,18 @@
+"""Sieve of Eratosthenes
+
+This is an unnecessarily-complex implementation, but it's extremely
+space-efficient.
+
+Key Classes
+-----------
+Sieve
+"""
+
 from array import array
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 
 
-class Sieve:
+class Sieve(Iterable[bool]):
     """Very space-efficient sieve of Eratosthenes.
 
     Tracks the primality of the odd numbers up to its size as a bit array of
@@ -11,13 +21,19 @@ class Sieve:
     Use generate() to get a generator that gets primes from the sieve, filling
     it as needed.
 
-    Use populate() to immediately fill it entirely().
+    Use populate() to immediately fill it entirely.
 
     Indexing by numbers reveals whether they are prime, if they have already
-    been generated.
+    been generated. Iteration iterates over bools representing the primality
+    of each index in the sieve, starting with 0.
 
     Note that checking values in the sieve or iterating over it before
     generating the values checked will produce inaccurate results.
+
+    Parameters
+    ----------
+    size : int
+        The largest number the sieve will include.
     """
     @property
     def size(self) -> int:
@@ -143,8 +159,13 @@ class Sieve:
 
 
 class bits:
-    # Namespace for some bit operations
-    # Some of the operations will have outputs larger than a byte.
+    """bit operation utilities
+
+    Some operations will have outputs larger than one byte (but the
+    least-significant byte will always be correct).
+
+    Methods may not act as expected for inputs larger than one byte.
+    """
 
     @classmethod
     def low_bits(bits, byte: int, n: int) -> int:
@@ -160,6 +181,7 @@ class bits:
 
     @classmethod
     def high_bits_mask(bits, n: int) -> int:
+        """May overflow a byte."""
         return bits.clear_low_bits_mask(8 - n)
 
     @classmethod
