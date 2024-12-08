@@ -40,7 +40,7 @@ class PrivateKey(RsaKey):
         return self.exp
 
 
-def keygen(p: int, q: int, *, e: int | PRNG) -> tuple[PrivateKey, PublicKey]:
+def keygen(p: int, q: int, e: int | PRNG) -> tuple[PrivateKey, PublicKey]:
     """Generate keys for use in RSA.
 
     Parameters
@@ -49,9 +49,6 @@ def keygen(p: int, q: int, *, e: int | PRNG) -> tuple[PrivateKey, PublicKey]:
         The first secret prime.
     q : int
         The second secret prime.
-
-    Keyword Parameters
-    ------------------
     e : int or pseudorandom.PRNG
         Either an integer to use as the public encryption key, or a PRNG to
         generate one.
@@ -94,6 +91,7 @@ def crack(key: PublicKey, ciphertext: int) -> int:
     p = find_factor_rho(n)
     q = n // p
 
+    # Use the known public key to generate the private key.
     privkey, _ = keygen(p, q, e=e)
 
     return decrypt(privkey, ciphertext)
