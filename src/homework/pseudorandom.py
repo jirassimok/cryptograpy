@@ -10,10 +10,6 @@ blum_blum_shub
     Simple, readable implementation of that algorithm.
 naor_reingold
     Somewhat simple, readable implementation of that algorithm.
-random_prime
-    Generate a random prime from a given PRNG.
-system_random_prime
-    Generate a random prime from the system PRNG.
 
 Key Classes
 -----------
@@ -33,7 +29,8 @@ from .bititer import (asbit, Bit, BitIterator, PRNG, RngState, WrappingPRNG,
                       WrappingBitIterator)
 from .euclid import gcd
 from .fastexp import pow as fastexp
-from .pseudoprime import is_prime
+# Import these just because I used them in my examples.
+from .randprime import random_prime, system_random_prime  # noqa:F401
 from .util import printer, Verbosity, is_verbose
 
 
@@ -470,31 +467,3 @@ class LowBitIterator(WrappingBitIterator):
     """
     def __init__(self, generator: Iterator[Bit] | Iterator[int], /):
         super().__init__(asbit(b) for b in generator)
-
-
-## Random prime generation
-
-
-def random_prime(bits: int, rng: PRNG) -> int:
-    """Generate a random prime of a given size from the given PRNG.
-
-    Parameters
-    ----------
-    bits : int
-        The number of bits in the prime. The most-significant bit will be 1.
-    rng : PRNG
-        The RNG to generate the prime from.
-    """
-    while True:
-        p = rng.randrange(2**(bits - 1), 2**bits)
-        if is_prime(p):
-            return p
-
-
-def system_random_prime(bits: int) -> int:
-    """Generate a random prime from the system's RNG.
-
-    This is useful for getting primes to set up the other RNGs.
-    """
-    from .bititer import SystemRandomBitIterator
-    return random_prime(bits, SystemRandomBitIterator())
