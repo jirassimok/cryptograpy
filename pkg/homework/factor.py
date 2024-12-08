@@ -27,7 +27,7 @@ def find_factor_rho(n, *, tries=0):
     Parameters
     ----------
     n : int
-        The number to factor. Must be composite.
+        The number to factor. Must be composite and greater than 4.
 
     Keyword parameters
     ------------------
@@ -35,6 +35,8 @@ def find_factor_rho(n, *, tries=0):
         Number of times to try if the algorithm fails. Each try will use a
         larger initial x. If 0, try forever.
     """
+    if n < 5:
+        raise ValueError(f"Factorize your small number ({n}) yourself.")
     span = count(2) if tries == 0 else range(2, 2 + tries)
     for x in span:
         y = rho_step(x, n)
