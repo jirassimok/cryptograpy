@@ -13,6 +13,7 @@ from math import floor, log
 from .euclid import euclid as gcd
 from .fastexp import fastexp
 from .sieve import Sieve
+from .pseudoprime import is_prime
 from .pseudorandom import PRNG
 from .util import is_verbose, printer, takebetween, Verbosity
 
@@ -172,3 +173,46 @@ class CachingIterable[T](Iterable[T]):
                 yield new
             else:
                 yield cache[i]
+
+
+## Useful functions based on these
+
+def factors(n: int) -> Iterator[int]:
+    """Generate all prime factors of a number using Pollard's Rho algorithm.
+
+    Parameters
+    ----------
+    n : int
+        The number to factorize.
+    """
+    if n == 1:
+        yield 1
+        return
+    while not is_prime(n):
+        if n == 4:
+            # Special case for tiny n where Rho has a bad time
+            factor = 2
+            yield factor
+        elif is_prime(factor := find_factor_rho(n)):
+            yield factor
+        else:
+            yield from factors(factor)
+        n //= factor
+    else:
+        # The final factor
+        yield n
+
+
+def unique_factors(n: int) -> Iterator[int]:
+    """Generate unique prime factors of a number using Pollard's Rho algorithm.
+
+    Parameters
+    ----------
+    n : int
+        The number to factorize.
+    """
+    found = set()
+    for factor in factors(n):
+        if factor not in found:
+            yield factor
+            found.add(factor)
