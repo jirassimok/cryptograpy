@@ -10,7 +10,7 @@ discrete_log
 import math
 from random import randrange, sample as randsample
 
-from .factors import factorize
+from .factor import unique_factors
 from .fastexp import fastexp
 from .pseudoprime import is_prime
 from .util import is_verbose, printer, supstr, Verbosity
@@ -71,8 +71,7 @@ def primitive_root(p, *,
             "primitive_root does not currently support non-primes")
 
     phi = p - 1
-    factors = factorize(phi).keys()
-    exponents = [phi // q for q in factors]
+    exponents = [phi // q for q in unique_factors(phi)]
     def is_root(b):
         return all(fastexp(b, x, p, verbose=verbose_fastexp) != 1
                    for x in exponents)
@@ -134,7 +133,7 @@ def is_primitive_root(b, p, *, factors=None, verbose_fastexp=False):
         raise ValueError('p must be prime')
     if factors is None:
         phi = p - 1
-        factors = factorize(phi).keys()
+        factors = unique_factors(phi)
     else:
         phi = p - 1
     exponents = [phi // q for q in factors]

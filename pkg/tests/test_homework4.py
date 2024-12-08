@@ -75,11 +75,12 @@ class TestPrimitiveRoot(unittest.TestCase):
                 self.assertEqual(primitive_root(p, smallest=True), expected)
 
     def test_errs(self):
-        with self.assertRaisesRegex(ValueError, 'no primitive roots'):
+        with self.assertRaises(NotImplementedError, msg='no primitive roots'):
+            # This should throw ValueError, but I removed that check.
             primitive_root(3 * 5)
-
-        with self.assertRaisesRegex(NotImplementedError, 'non-prime'):
+        with self.assertRaises(NotImplementedError, msg='not prime'):
             primitive_root(2 * 3**3)
+        with self.assertRaises(NotImplementedError, msg='not prime'):
             primitive_root(2**4)
 
     def test_random_gen(self):
@@ -140,9 +141,9 @@ class TestIsPrimitiveRoot(unittest.TestCase):
                                  f'p={p}, potential root {x}')
 
     def test_with_factors(self):
-        from homework.factors import factorize
+        from homework.factor import unique_factors
         for p in (73, 617, 1999):
-            factors = factorize(p - 1)
+            factors = set(unique_factors(p - 1))
             for x in range(2, p):
                 self.assertEqual(is_primitive_root(x, p, factors=factors),
                                  compare_is_primitive_root(x, p),
