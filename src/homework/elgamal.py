@@ -18,6 +18,12 @@ from .fastexp import pow as fastexp
 from .homework4 import discrete_log
 
 
+__all__ = [
+    'crack',
+    'ElGamal',
+]
+
+
 class Key(NamedTuple):
     """The public information for one side of an ElGamal message exchange."""
     prime: int

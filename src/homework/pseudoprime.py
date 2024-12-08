@@ -17,6 +17,12 @@ from .util import is_verbose, printer, substr, supstr, Verbosity
 # 2, 325, 9375, 28178, 450775, 9780504, 1795265022
 
 
+__all__ = [
+    'strong_prime_test',
+    'is_prime',
+]
+
+
 def fastexp(base: int, exp: int, modulus: int):
     """Modular exponentiation, with special-casing for Fermat's little theorem.
 

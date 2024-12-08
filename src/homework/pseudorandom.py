@@ -37,7 +37,6 @@ __all__ = [
     'BlumBlumShub',
     'naor_reingold',
     'NaorReingold',
-    'PRNG', # re-exported
 ]
 
 

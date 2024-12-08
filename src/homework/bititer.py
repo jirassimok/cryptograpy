@@ -10,8 +10,7 @@ Key Classes
 BitIterator : abstract
     Represents an iterator over bits, with methods to get larger values.
 PRNG : abstract
-    Combines BitIterator with Python's random.Random interface. This class
-    is also exported from the 'pseudorandom' module.
+    Combines BitIterator with Python's random.Random interface.
 
 
 Extra Classes
@@ -36,7 +35,7 @@ __all__ = [
     'pack_bits',
     'BitIterator',
     'WrappingBitIterator',
-    # 'PRNG' is exported from pseudorandom instead
+    'PRNG',
     'WrappingPRNG',
     'RandomBitIterator',
     'SystemRandomBitIterator',

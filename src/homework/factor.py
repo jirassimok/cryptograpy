@@ -18,6 +18,14 @@ from .pseudorandom import PRNG
 from .util import is_verbose, printer, takebetween, Verbosity
 
 
+__all__ = [
+    'find_factor_rho',
+    'find_factor_pm1',
+    'factors',
+    'unique_factors',
+]
+
+
 def rho_step(x, n):
     return (fastexp(x, 2, n) + 1) % n
 
