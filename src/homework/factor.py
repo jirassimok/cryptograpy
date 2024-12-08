@@ -30,7 +30,7 @@ def rho_step(x, n):
     return (fastexp(x, 2, n) + 1) % n
 
 
-def find_factor_rho(n, *, tries=0):
+def find_factor_rho(n, *, tries=0, check_prime=False):
     """Find a factor of n using Pollard's rho algorithm.
 
     Parameters
@@ -43,9 +43,16 @@ def find_factor_rho(n, *, tries=0):
     tries : int, default 0
         Number of times to try if the algorithm fails. Each try will use a
         larger initial x. If 0, try forever.
+    check_prime : bool, default False
+        Whether to explicitly check for prime arguments.
     """
     if n < 5:
-        raise ValueError(f"Factorize your small number ({n}) yourself.")
+        if n < 0:
+            raise ValueError(f"Can not factor negative number {n}")
+        raise ValueError(f"Can not factor small number {n}")
+    elif check_prime and is_prime(n):
+        raise ValueError(f"Can not factor prime number {n}")
+
     span = count(2) if tries == 0 else range(2, 2 + tries)
     for x in span:
         y = rho_step(x, n)
@@ -154,17 +161,21 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
 def factors(n: int) -> Iterator[int]:
     """Generate all prime factors of a number using Pollard's Rho algorithm.
 
+    For an input of 0 or 1, generates no factors.
+
     Parameters
     ----------
     n : int
         The number to factorize.
     """
-    if n == 1:
-        yield 1
+    if n == 0:
         return
+    elif n == 1:
+        return
+
     while not is_prime(n):
         if n == 4:
-            # Special case for tiny n where Rho has a bad time
+            # Special case for tiny n where rho has a bad time
             factor = 2
             yield factor
         elif is_prime(factor := find_factor_rho(n)):
