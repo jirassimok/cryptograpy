@@ -56,6 +56,10 @@ class ElGamal:
         self._secret = secret
         self.base_to_secret = fastexp(self.base, self._secret, self.prime)
 
+    def __repr__(self):
+        p, base, secret = self.prime, self.base, self._secret
+        return f'{type(self).__name__}({p=}, {base=}, {secret=})'
+
     def publish_key(self):
         """Publish all the public information needed to be sent messages.
 
