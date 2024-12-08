@@ -5,11 +5,11 @@ Key Functions
 find_factor_rho
 find_factor_pm1
 """
-from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Iterable, Iterator
 from itertools import count
 from math import floor, log
 
+from .cache_util import Cache, CachingIterable
 from .euclid import euclid as gcd
 from .fastexp import fastexp
 from .sieve import Sieve
@@ -139,40 +139,6 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
             assert g == 1, 'we only run out of primes when g is always 1'
             raise ValueError(
                 f'{n} has no factors 1 greater than a {bound}-smooth number')
-
-
-class Cache(defaultdict[int, int]):
-    """A defaultdict that passes its missing keys to its default factory.
-    """
-    def __init__(self, default_factory: Callable[[int], int]):
-        super().__init__(default_factory)  # type: ignore[arg-type]
-
-    def __missing__(self, key):
-        return self.default_factory(key)
-
-
-class CachingIterable[T](Iterable[T]):
-    """An iterable that caches its values the first time they are seen.
-    """
-    def __init__(self, base: Iterable[T]):
-        self.base = iter(base)
-        self.cache: list[T] = []
-
-    def __iter__(self) -> Iterator[T]:
-        cache = self.cache
-        it = self.base
-        i = -1
-        while True:
-            i += 1
-            if i >= len(cache):
-                try:
-                    new = next(it)
-                except StopIteration:
-                    return
-                cache.append(new)
-                yield new
-            else:
-                yield cache[i]
 
 
 ## Useful functions based on these
