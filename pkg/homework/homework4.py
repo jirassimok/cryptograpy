@@ -12,7 +12,7 @@ from random import randrange, sample as randsample
 
 from .factors import factorize
 from .fastexp import fastexp
-from .prime import is_prime
+from .pseudoprime import is_prime
 from .util import is_verbose, printer, supstr, Verbosity
 
 # TODO: Split this functions out into appropriate modules or
@@ -66,18 +66,9 @@ def primitive_root(p, *,
     elif p == 4:
         return 3
 
-    if not nocheck:
-        # TODO: Use a faster prime test here.
-        # Reject all the numbers without primitive roots
-        fs = factorize(p)
-        if not (len(fs) == 1
-                # above: prime^k, below: 2*prime^k
-                or (len(fs) == 2 and fs[2] == 1)):
-            raise ValueError(f'{p} has no primitive roots')
-
-        if not is_prime(p):
-            raise NotImplementedError(
-                "primitive_root does not currently support non-primes")
+    if not nocheck and not is_prime(p):
+        raise NotImplementedError(
+            "primitive_root does not currently support non-primes")
 
     phi = p - 1
     factors = factorize(phi).keys()
