@@ -39,8 +39,8 @@ exclude_also = [
 ]
 
 omit = [
-    "pkg/homework/alt_primes.py",
-    "pkg/homework/integer_types.py",
-    "pkg/homework/homework4_notebook.py",
-    "pkg/homework/recursive_logging_decorator.py",
+    "src/homework/alt_primes.py",
+    "src/homework/integer_types.py",
+    "src/homework/homework4_notebook.py",
+    "src/homework/recursive_logging_decorator.py",
 ]

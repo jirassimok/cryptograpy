@@ -22,9 +22,9 @@ ignore = W503, E306, E203, E704, E261, E266
 # E305 two blank lines after def
 # F401 unused import
 per-file-ignores =
-    pkg/homework/__init__.py:F401
-    pkg/homework/euclid.py:E226,E231,E252,E301,E302
-    pkg/homework/fastexp.py:E226
-    pkg/homework/util.py:E302
-    pkg/tests/*:E226,E227
-    pkg/tests/test_prime.py:E225,E226
+    src/homework/__init__.py:F401
+    src/homework/euclid.py:E226,E231,E252,E301,E302
+    src/homework/fastexp.py:E226
+    src/homework/util.py:E302
+    src/tests/*:E226,E227
+    src/tests/test_prime.py:E225,E226
