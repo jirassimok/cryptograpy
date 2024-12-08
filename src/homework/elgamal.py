@@ -43,15 +43,12 @@ class ElGamal:
     ----------
     prime : int
         The public prime modulus.
-
-    Keyword Parameters
-    ------------------
     base : int
         The public base for the exponents.
     secret : int
         This user's secret exponent.
     """
-    def __init__(self, prime, *, base, secret):
+    def __init__(self, prime, base, secret):
         """Base and secret are currently required because I don't have randoms.
         """
         self.prime = prime
