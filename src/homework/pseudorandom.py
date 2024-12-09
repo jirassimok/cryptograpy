@@ -363,6 +363,9 @@ class NaorReingold(PRNG):
     def f(self, x, *, verbose: Verbosity = None) -> Bit:
         """The Naor-Reingold function."""
         print = printer(is_verbose(verbose))
+        if is_verbose(verbose):
+            for i, (a, bit) in enumerate(zip(self.pairs, split_bits(x))):
+                print(i, a, bit, a[bit])
         exp = sum(a[bit] for a, bit in zip(self.pairs, split_bits(x)))
         g_to_e = fastexp(self.square, exp, self.n)
         print('exp', exp)
