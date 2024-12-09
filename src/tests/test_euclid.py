@@ -65,7 +65,11 @@ class TestEuclid(unittest.TestCase):
         import homework.util
         homework.util.VERBOSE = False
         import homework.euclid
-        homework.euclid.MANUAL_DIVMOD.set(True)
+        self.divmod_token = homework.euclid.MANUAL_DIVMOD.set(True)
+
+    def tearDown(self):
+        import homework.euclid
+        homework.euclid.MANUAL_DIVMOD.reset(self.divmod_token)
 
     def test_gcd(self):
         for a, b, expected, *msg in self.filter_params():
