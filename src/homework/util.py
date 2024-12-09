@@ -1,3 +1,8 @@
+"""Various utilities.
+
+This module consists of utilities primarily to help with
+printing and type-checking of the other modules.
+"""
 # -*- flycheck-checker: python-pyright; -*-
 from __future__ import annotations
 from collections.abc import Callable, Iterable
