@@ -120,7 +120,11 @@ def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
             s = fastexp(s, 2, n)
             yield asbit(s)
 
-    return lambda seed: WrappingPRNG(generator(seed))
+    def blumblumshub(seed: int) -> PRNG:
+        if seed < 2 or gcd(n, seed) != 1:
+            raise ValueError('illegal seed')
+        return WrappingPRNG(generator(seed))
+    return blumblumshub
 
 
 class BlumBlumShub(PRNG):
@@ -228,8 +232,8 @@ class BlumBlumShub(PRNG):
             seed = 1 << n.bit_length()
 
         self._modulus = n
-        self._state = seed
         self.check_seeds = check_seeds
+        self.seed(seed)
 
     @property
     def modulus(self):
@@ -242,7 +246,7 @@ class BlumBlumShub(PRNG):
         elif version != 2:
             raise ValueError(f'unsupported seed version: {version}')
         check_seed = self.check_seeds
-        if check_seed and gcd(self.modulus, a) != 1:
+        if check_seed and (a < 2 or gcd(self.modulus, a) != 1):
             raise ValueError('illegal seed')
 
         self._state = a % self.modulus
