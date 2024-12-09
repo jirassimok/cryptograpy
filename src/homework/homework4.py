@@ -149,6 +149,16 @@ def bsgs_log(x: int, /, base: int, modulus: int, *,
 
     Note that the modulus must be prime.
 
+    Parameters
+    ----------
+    (x) : int
+        The power to take the logarithm of.
+    base : int
+        The base of the logarithm.
+    modulus : int
+        The modulus for the group in which the logarithm should be computed.
+        If the modulus is not prime, results may be inaccurate.
+
     Keyword Parameters
     ------------------
     verbose : bool, optional
@@ -225,6 +235,16 @@ def bsgs_log(x: int, /, base: int, modulus: int, *,
 def discrete_log(x: int, /, base: int, modulus: int) -> int:
     """Calculate a discrete logarithm using the baby-step giant-step algorithm.
 
-    Like bsgs_log, but never verbose.
+    Like bsgs_log from the homework4 module, but never verbose.
+
+    Parameters
+    ----------
+    (x) : int
+        The power to take the logarithm of.
+    base : int
+        The base of the logarithm.
+    modulus : int
+        The modulus for the group in which the logarithm should be computed.
+        If the modulus is not prime, results may be inaccurate.
     """
     return bsgs_log(x, base, modulus, verbose=False)
