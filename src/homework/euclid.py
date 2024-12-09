@@ -83,7 +83,8 @@ def check_signs[**A, R](fn: Callable[A, R]) -> Callable[A, R]:
 def gcd(a: int, b: int, /) -> int:
     """Compute greatest common divisor using the Euclidean algorithm.
 
-    Like the 'euclid' function from this module, but never verbose.
+    Like the 'euclid' function from the module of the same name, but
+    never verbose.
 
     Parameters
     ----------
