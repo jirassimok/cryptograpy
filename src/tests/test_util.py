@@ -9,6 +9,7 @@ import unittest
 
 from homework import util
 
+
 class TestUtilModule(unittest.TestCase):
     def test_supstr_zero(self):
         self.assertEqual(util.supstr(0), '\N{superscript zero}')

@@ -227,4 +227,5 @@ class TestUniqueFactors(TestFactors):
                          sorted(set(factors)),
                          msg)
 
+
 del FactorizeTestCase
