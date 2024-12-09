@@ -72,12 +72,29 @@ def keygen(p: int, q: int, e: int | PRNG) -> tuple[PrivateKey, PublicKey]:
 
 
 def encrypt(key: PublicKey, message: int) -> int:
-    """Encrypt a message using the given public key."""
+    """Encrypt a message using the given public key.
+
+    Parameters
+    ----------
+    key : PublicKey or pair of ints (modulus, exponent)
+        The public key to use for encryption.
+    message : int
+        The message to encrypt.
+    """
     return fastexp(message, key.e, key.n)
 
 
 def decrypt(key: PrivateKey, ciphertext: int) -> int:
-    """Decrypt a ciphertext using the given private key."""
+    """Decrypt a ciphertext using the given private key.
+
+
+    Parameters
+    ----------
+    key : PrivateKey or pair of ints (modulus, exponent)
+        The private key to use for encryption.
+    ciphertext : int
+        The message to decrypt.
+    """
     return fastexp(ciphertext, key.d, key.n)
 
 
@@ -85,6 +102,13 @@ def crack(key: PublicKey, ciphertext: int) -> int:
     """Decrypt a ciphertext by factoring the public key's modulus.
 
     Uses Pollard's rho algorithm.
+
+    Parameters
+    ----------
+    key : PublicKey or pair of ints (modulus, exponent)
+        The public key to crack.
+    ciphertext : int
+        The message to decrypt.
     """
     n, e = key
 
