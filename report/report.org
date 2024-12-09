@@ -1,0 +1,355 @@
+#+title: Project report
+
+#+latex_header: \usepackage{parskip}
+#+latex_header: \lstset{basicstyle=\ttfamily, columns=fullflexible}
+#+latex_header: \lstset{upquote=true, keepspaces=true, showstringspaces=false}
+
+
+
+* Usage
+
+To install my program, clone the git repository and install Python 3.12 or
+newer (previous versions of Python will not work[fn::I used new language
+features for type hints, so 3.11 will get syntax errors].
+
+To use it, run a python interpreter in the =src= directory, and import
+from the =homework= module.
+
+#+begin_src sh
+  ~$ dir=jik-crypto
+  ~$ git clone https://github.com/jirassimok/roll-your-own-crypto.git "$dir"
+  ~$ cd "$dir/src"
+  ~/jik-crypto/src$ python3.12
+  >>> # These are examples of ways you can import things from the modules.
+  >>> import homework
+  >>> import homework.
+  >>> from homework import *
+#+end_src
+
+I have carefully documented the most important functions and classes
+in each module, which can be viewed at the top of each module's file or in the
+=DESCRIPTION= section of the module's help in Python REPL.
+#+begin_src sh
+  >>> import homework
+  >>> help(homework)
+  >>> help(homework.euclid)  # module help
+  >>> help(homework.euclid.euclid)  # function help
+#+end_src
+If you want to try any of the functions in particular, please consult the
+examples of usage below to understand the basic calling conventions, and
+the help strings for the particulars of each function.
+
+** Example documentation
+
+Here's the documentation for my primary implementation of the extended
+Euclidean algorithm, as an example:
+#+begin_example
+  Find GCD and coefficients using the Extended Euclidean algorithm.
+
+  Given m and n, returns g, s, and t, such that g is the greatest common
+  divisor of m and n, and m*s + n*t == g.
+
+  Parameters
+  ----------
+  (m) : int
+  (n) : int
+
+  Keyword parameters
+  ------------------
+  verbose : bool, optional
+      If false, print nothing. If true, or if not given and util.VERBOSE
+      is true, print the steps of the algorithm in a table-like format.
+#+end_example
+
+** Key object listing
+This is the list of key functions in the root module. For conveinence, I've
+included the basic parameter lists for some of the functions as well.[fn::Refer
+to their documentation for full parameter lists, or for functions without
+parameters listed here.]
+- Encryption systems
+  - =rsa= (actually a module)
+    - =rsa.keygen(p, q, e)=
+    - =rsa.encrypt(key, m)==
+    - =rsa.decrypt(key, c)=
+    - =rsa.crack=
+  - =ElGamal= (class constructor)
+    - =ElGamal.publishkey= (instance method)
+    - =ElGamal.encrypt= (instance method)
+    - =ElGamal.decrypt= (instance method)
+  - =crack_elgamal=
+- General algorithms
+  - =gcd=
+  - =ext_euclid=
+  - =pow=
+  - =primitive_root=
+  - =is_primitive_root=
+  - =discrete_log=
+  - =strong_prime_test=
+  - =is_prime=
+  - Factorization
+    - =find_factor_rho=
+    - =find_factor_pm1=
+    - =factors=
+    - =unique_factors=
+- PRNGs
+  - =blum_blum_shub=
+  - =BlumBlumShub= (class)
+  - =naor_reingold=
+  - =NaorReingold= (class)
+- Additional utilities
+  - =random_prime=
+  - =random_prime_3mod4=
+  - =system_random_prime=
+  - =system_random_prime_3mod4=
+
+The root module also exports various submodules, which are described in the
+module's documentation.
+
+** Extended usage example
+Here is an extended example of the usage of my code, covering a few of the
+basic 
+#+begin_src python
+  >>> import homework
+  >>> from homework import *
+  >>> # For a list of the imports from that *, consult one of these:
+  >>> help(homework)  # Module list and extended docs for all contents.
+  >>> homework.__all__  # List of attributes imported by *
+  >>>
+  >>> discrete_log(101, base=26, modulus=137) \
+  ... # Also available as homework4.bsgs_log
+  22
+  >>> pow(26, 22, 137)  # also available as fastexp.fastexp
+  101
+  >>> # Documented keyword parameters must be given by name, as below:
+  >>> # fastexp.fastexp(26, 22, 137, verbose=True)
+  >>>
+  >>> rng = BlumBlumShub(62423, 49523, seed=1411122231)
+  >>> next(rng)
+  1
+  >>> rng.next_bit()
+  0
+  >>> rng.next_int(12)
+  3267
+  >>> p = random_prime(16, rng)
+  >>> q = random_prime(16, rng)
+  >>> privkey, pubkey = rsa.keygen(p, q, 65537)
+  >>> ciphertext = rsa.encrypt(pubkey, 1234567890)
+  >>>
+  >>> 
+#+end_src
+
+* Testing
+
+I wrote extensive tests for my algorithms using Python's =unittest= library.
+These tests are in the =src/tests=
+
+To run the unit tests, use this command:
+#+begin_src sh
+  ~/jik-crypto$ python3.12 -m unittest discover -s src.tests -t .
+#+end_src
+
+I also used the flake8 tool to keep my code conforming to the canonical Python
+style guide, and mypy to statically check types to help ensure I always used
+functions correctly. Figure [[fig:tests]] shows the outputs of all three tools
+indicating no issues.
+
+# I also used the popular Python coverage tool coverage.py to monitor my test
+# coverage.
+# 
+# | File                         | Statements | Missing | Excluded | Coverage |
+# |------------------------------+------------+---------+----------+----------|
+# | src/homework/__init__.py     |         10 |       0 |        0 |     100% |
+# | src/homework/bit_class.py    |         99 |      34 |        7 |      66% |
+# | src/homework/bititer.py      |         96 |      24 |        1 |      75% |
+# | src/homework/cache_util.py   |         25 |       2 |        0 |      92% |
+# | src/homework/elgamal.py      |         36 |       2 |        0 |      94% |
+# | src/homework/euclid.py       |        212 |       0 |        0 |     100% |
+# | src/homework/factor.py       |        102 |      10 |        2 |      90% |
+# | src/homework/fastexp.py      |        170 |       0 |        0 |     100% |
+# | src/homework/homework4.py    |         89 |       0 |        2 |     100% |
+# | src/homework/pseudoprime.py  |         73 |       1 |        0 |      99% |
+# | src/homework/pseudorandom.py |        196 |      51 |       13 |      74% |
+# | src/homework/randprime.py    |         16 |      10 |        0 |      38% |
+# | src/homework/sieve.py        |        119 |       0 |        0 |     100% |
+# | src/homework/util.py         |         88 |      17 |       29 |      81% |
+#
+# The vast majority of the low-coverage code falls into three categories:
+# - Code I implemented as part of an API but did not use or test (as in
+#   =bititer.py=).
+# - Special cases where I added
+
+#+caption: ElGamal Alice (sender): public channel
+#+name: fig:tests
+#+attr_html: :width 100%
+[[./elgamal-alice.png]]
+
+
+* Example exchanges
+
+Note that in the ElGamal exchanges, I included a function =prime3mod4=,
+based on =pseudorandom.random_prime=. After the ElGamal exchanges, I
+moved =random_prime= to the =randprime= module along with the function
+to generate primes that are 3 mod 4.
+
+For each part of each exchange, I include two images: one of the public
+transmission medium (a Zoom chat window), and one of the work I did to
+play my role in code.[fn:power]
+
+In each exchange where I needed a random number, I used the system's random
+number generation to generate two (32-bit) primes that I used to set up a
+Blum-Blum-Shub PRNG that I then seeded with a random number generated by
+mashing my numpad.[fn:primegen]
+
+I then used the Blum-Blum-Shub PRNG to generate the numbers used in the
+exchanges.
+
+[fn:power] Note that I modified my code slightly after taking these
+screenshots; the field visible as =base_to_secret_power= is now named =power=.
+
+[fn:primegen] I also added the functions I used to generate those initial
+primes in the =randprime= module, rather than the =pseudoprime= module I
+imported them from in the screenshots.
+# Two blank lines below to end the footnotes.
+
+
+** ElGamal
+
+*** Alice
+As Alice using ElGamal, I generated the shared prime and primitive root (and my
+own keys), recieved a public key from Bob, and used those numbers to encrypt a
+message for Bob.
+
+These are the numbers I used (the prime is 30 bits):
+| Prime                     |             558755221 |
+| Primitive root            |             245325847 |
+| *Alice*'s secret exponent | 396825982[fn:egalice] |
+| *Alice*'s public power    |             450328945 |
+| Bob's public power        |             503192593 |
+| Message                   |             123454321 |
+| Encrypted message         |              59923868 |
+
+[fn:egalice] I didn't actually know what my secret exponent was during the
+exchange because I used a random value that I didn't print; to find it for this
+table, I had to take the discrete log of my public key.
+# Two lines left blank to end footnote
+
+
+#+caption: ElGamal Alice (sender): public channel
+#+attr_html: :width 100%
+[[./elgamal-alice.png]]
+
+#+caption: ElGamal Alice (sender): private computation
+#+attr_html: :width 100%
+[[./elgamal-alice-shell.png]]
+
+
+*** Bob
+As Bob using ElGamal, I received the shared prime, primitive root, and public
+key from Alice, generated my own keys, and sent my public key to Alice. Then, I
+recieved a ciphertext from Alice that I decypted using my private key.
+
+| Prime                   | 601 |
+| Primitive root          |   2 |
+| Alice's public power    | 526 |
+| *Bob*'s secret exponent | 270 |
+| *Bob*'s public power    | 432 |
+| Ciphertext              | 551 |
+| Decrypted ciphertext    | 586 |
+
+
+#+caption: ElGamal Bob (recipient): public channel
+#+attr_html: :width 100%
+[[./elgamal-bob.png]]
+
+#+caption: ElGamal Bob (recipient): private computation
+#+attr_html: :width 100%
+[[./elgamal-bob-shell.png]]
+
+
+*** Eve
+As Eve attacking ElGamal, I observed Alice and Bob's prime, primitive root,
+public keys, and ciphertext in the public channel, and used them to decrypt the
+hidden message.
+
+| Prime                | 719866891 |
+| Primitive root       | 573107670 |
+| Alice's public power | 265302985 |
+| Bob's public power   | 575640003 |
+| Ciphertext           |  88756902 |
+| Decrypted ciphertext |     72105 |
+
+
+#+caption: ElGamal Eve: public channel
+#+attr_html: :width 100%
+[[./elgamal-eve.png]]
+
+#+caption: ElGamal Eve: private computation
+#+attr_html: :width 100%
+[[./elgamal-eve-shell.png]]
+
+
+** RSA
+
+*** Alice
+As Alice using RSA, I received Bob's public key (a large product of primes and
+encryption exponent), used it to encrypt a message, and sent the ciphertext to
+Bob.
+
+| Public modulus ($n$)             | 219056419 |
+| Public encryption exponent ($e$) |     65537 |
+| Message                          |     24601 |
+| Encrypted message                |   2725461 |
+
+#+caption: RSA Alice (recipient): public channel
+#+attr_html: :width 100%
+[[./rsa-alice.png]]
+
+#+caption: RSA Alice (recipient): private computation
+#+attr_html: :width 100%
+[[./rsa-alice-shell.png]]
+
+*** Bob
+As Bob using RSA, I generated a large prime, chose a public key, and generated
+a secret key, recieved a ciphertext from Alice, and decrypted it.
+
+This is the one case where I did not generate all of my parameters randomly,
+instead choosing the standard value of 65537 for my public key (as my entire
+group did).
+
+I chose random 30-bit primes for \(p\) and \(q\) (and got a 60-bit \(n\) and
+58-bit \(d\)).
+| \(p\)                               |          871406539 |
+| \(q\)                               |         1016687521 |
+| Public modulus (\(n\))              | 885948153919099819 |
+| Public encryption exponent (\(e\))  |              65537 |
+| Private decryption exponent (\(d\)) | 232582174278551873 |
+| Ciphertext                          | 526095868287819837 |
+| Decrypted ciphertext                |         4426666244 |
+
+#+caption: RSA Bob (sender): public channel
+#+attr_html: :width 100%
+[[./rsa-bob.png]]
+
+#+caption: RSA Bob (sender): private computation
+#+attr_html: :width 100%
+[[./rsa-bob-shell.png]]
+
+
+*** Eve
+As Eve attacking RSA, I observed Alice's modulus and encryption exponent, as
+well as the encrypted message from Bob, and used Pollard's rho algorithm to
+factor \(n\), allowing me to recreate Alice's decryption key and decrypt the
+message.
+
+| Public modulus (\(n\))             | 603940123 |
+| Public encryption exponent (\(e\)) |     65537 |
+| Ciphertext                         | 508054907 |
+| Decrypted ciphertext               |      3981 |
+
+#+caption: RSA Eve: public channel
+#+attr_html: :width 100%
+[[./rsa-eve.png]]
+
+#+caption: RSA Eve: private computation
+#+attr_html: :width 100%
+[[./rsa-eve-shell.png]]
