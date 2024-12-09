@@ -6,15 +6,15 @@ find_factor_rho
 find_factor_pm1
 """
 from collections.abc import Iterable, Iterator
-from itertools import count
+from itertools import count, repeat
 from math import floor, log
+from random import Random
 
 from .cache_util import Cache, CachingIterable
 from .euclid import euclid as gcd
 from .fastexp import fastexp
 from .sieve import Sieve
 from .pseudoprime import is_prime
-from .pseudorandom import PRNG
 from .util import is_verbose, printer, takebetween, Verbosity
 
 
@@ -75,8 +75,9 @@ def find_factor_rho(n, *, tries=0, check_prime=False):
 _sieve = Sieve(10_000)
 
 
-def find_factor_pm1(n: int, bound: int, rng: PRNG,
-                    *, primes: Sieve | Iterable[int] | None = None,
+def find_factor_pm1(n: int, bound: int, bases: Random | Iterable[int],
+                    *, tries: int = 0,
+                    primes: Sieve | Iterable[int] | None = None,
                     verbose: Verbosity = None):
     """Find a factor of n using Pollard's p-1 algorithm.
 
@@ -86,11 +87,17 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
         The number to factor. Must be composite, and not a power of a prime.
     bound : int
         The smoothness bound (aka $B$).
-    rng : random.Random
-        The random number generator to use in the algorithm.
+    bases : random.Random or iterable of int
+        The source to use for the b values in the algorithm. If it is an
+        instance of random.Random (including pseudorandom.PRNG), its
+        randrange method will be used. Otherwise, it will be used as an
+        iterator over b-values to try.
 
     Keyword Parameters
     ------------------
+    tries : int, default 0
+        The number of b values to test. If 0 (the default), try forever
+        (or until the provided source of b values is exhausted).
     primes : prime.Sieve or iterable of int, optional
         A Sieve of primes containing the factor base, or an iterable that
         will produce consecutive primes starting at 2, at least up to the
@@ -102,6 +109,8 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
     global _sieve
 
     print = printer(is_verbose(verbose))
+
+    ## Prepare prime generation
 
     if primes is None:
         # If the default sieve is too small, replace it with a bigger one.
@@ -117,16 +126,38 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
         primes = primes.generate()
     primes = CachingIterable(primes)
 
+    ## Prepare exponents cache
+
+    # We use the same p**log_{p}(n) for each b, so cache them.
     def get_exponent(p):
         L = floor(log(n, p))
         print('  (l is ', L, ')', sep='')
         return fastexp(p, L)
-
-    # We use the same p**log_{p}(n) for each b, so cache them.
     exponents = Cache(get_exponent)
 
-    while True:
-        b = rng.randrange(1, n)
+    ## Prepare b value generation
+
+    # Loop iterator, infinite if 0
+    span = repeat(0) if tries == 0 else range(tries)
+
+    if isinstance(bases, Random):
+        # Generate b from RNG
+        def generate_bs() -> Iterator[int]:
+            for _ in span:
+                yield bases.randrange(1, n)
+
+    elif bases is None and not isinstance(tries, int):
+        # Take b from provided list
+        def generate_bs() -> Iterator[int]:
+            for b, _ in zip(bases, span):
+                yield b
+
+    else:
+        raise TypeError('Invalid arguments for p-1 algorithm')
+
+    ## Main algorithm
+
+    for b in generate_bs():
         g = gcd(b, n)
         print('checking', b, '-> gcd is', g)
         if 1 < g < n:
@@ -154,6 +185,8 @@ def find_factor_pm1(n: int, bound: int, rng: PRNG,
             assert g == 1, 'we only run out of primes when g is always 1'
             raise ValueError(
                 f'{n} has no factors 1 greater than a {bound}-smooth number')
+    else:
+        raise ValueError('failed to find a factor')
 
 
 ## Useful functions based on these
