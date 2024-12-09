@@ -9,7 +9,7 @@ import homework.factor as ff
 import homework.pseudorandom as pr
 from homework.pseudoprime import is_prime
 
-from .test_prime import PRIMES_BELOW_4000
+from .util import PRIMES_BELOW_4000
 
 
 # Note: this class is deleted at the end of the file

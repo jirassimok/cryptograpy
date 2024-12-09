@@ -6,10 +6,10 @@ import unittest
 
 from homework.pseudoprime import strong_prime_test
 
-from . import test_prime
+from . import util
 
 
-PRIMES_BELOW_4000 = set(test_prime.PRIMES_BELOW_4000)
+PRIMES_BELOW_4000 = set(util.PRIMES_BELOW_4000)
 COMPOSITES_BELOW_4000 = PRIMES_BELOW_4000.symmetric_difference(range(1, 4000))
 """Composite numbers below 4000, and also 1."""
 

@@ -1,4 +1,4 @@
-from .test_prime import PRIMES_BELOW_4000, takebetween, TestCase
+from .util import PRIMES_BELOW_4000, takebetween, TestCase
 
 from homework.sieve import Sieve, bits
 
