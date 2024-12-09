@@ -256,10 +256,10 @@ class BlumBlumShub(PRNG):
 
 ## Naor-Reingold
 
-def naor_reingold(nbits, p, q,
+def naor_reingold(nbits: int, p: int, q: int,
                   pairs: Iterable[tuple[int, int]],
-                  square_root,
-                  r) -> PRNG:
+                  square_root: int,
+                  r: Sequence[Bit]) -> PRNG:
     """Iterate over random numbers using a Naor-Reingold function.
 
     Parameters
