@@ -28,7 +28,7 @@ class Key(NamedTuple):
     """The public information for one side of an ElGamal message exchange."""
     prime: int
     base: int
-    base_to_secret_power: int
+    power: int
 
 
 class ElGamal:
@@ -42,7 +42,7 @@ class ElGamal:
         The modulus for the group operations.
     base : int
         The base for the exponents.
-    base_to_secret : int
+    power : int
         The base raised to this user's secret power in the group.
 
     Parameters
@@ -60,7 +60,7 @@ class ElGamal:
         self.prime = prime
         self.base = base # or primitive_root(prime, smallest=False)
         self._secret = secret
-        self.base_to_secret = fastexp(self.base, self._secret, self.prime)
+        self.power = fastexp(self.base, self._secret, self.prime)
 
     def __repr__(self):
         p, base, secret = self.prime, self.base, self._secret
@@ -75,47 +75,44 @@ class ElGamal:
             The modulus for the group operations.
         base : int
             The base for the exponents.
-        base_to_secret : int
+        power : int
             The base raised to this user's secret power in the group.
         """
-        return Key(self.prime, self.base, self.base_to_secret)
+        return Key(self.prime, self.base, self.power)
 
-    def encrypt(self, recipient_base_to_secret, message):
+    def encrypt(self, recipient_power, message):
         """Encrypt a message to send to another user.
 
         Parameters
         ----------
-        recipient_base_to_secret : int
+        recipient_power : int
             The recipient's public key (the shared base raised to the
             recipient's secret power in the shared group).
         message : int
             The message to encrypt.
         """
-        b_to_both = fastexp(recipient_base_to_secret,
+        b_to_both = fastexp(recipient_power,
                             self._secret, self.prime)
         return message * b_to_both % self.prime
 
-    def decrypt(self, sender_base_to_secret, ciphertext):
+    def decrypt(self, sender_power, ciphertext):
         """Decrypt a message from another user.
 
         Parameters
         ----------
-        sender_base_to_secret : int
+        sender_power : int
             The sender's public key (the shared base raised to the sender's
             secret power in the shared group).
         ciphertext : int
             The message to decrypt.
         """
         p = self.prime
-        b_to_s_inv = modular_inverse(sender_base_to_secret, p)
+        b_to_s_inv = modular_inverse(sender_power, p)
         b_to_both_inv = fastexp(b_to_s_inv, self._secret, p)
         return b_to_both_inv * ciphertext % p
 
 
-def crack(prime, base,
-          sender_base_to_secret,
-          recipient_base_to_secret,
-          ciphertext):
+def crack(prime, base, sender_power, recipient_power, ciphertext):
     """Break ElGamal encryption.
 
     Parameters
@@ -124,17 +121,17 @@ def crack(prime, base,
         The modulus for the group operations.
     base : int
         The base for the exponents.
-    sender_base_to_secret : int
+    sender_power : int
         The sender's public key (the base raised to the sender's secret power).
-    recipient_base_to_secret : int
+    recipient_power : int
         The recipient's public key (the base raised to the recipient's secret
         power).
     ciphertext : int
         The message to decrypt.
     """
     p, b, c = prime, base, ciphertext
-    bs = sender_base_to_secret
-    br = recipient_base_to_secret
+    bs = sender_power
+    br = recipient_power
     r = discrete_log(br, b, p)
     bs_inv = fastexp(bs, p - 2, p)  # b^t^-1
     bsr_inv = fastexp(bs_inv, r, p)  # b^t^r^-1
