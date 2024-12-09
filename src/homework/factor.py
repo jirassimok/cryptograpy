@@ -144,16 +144,14 @@ def find_factor_pm1(n: int, bound: int, bases: Random | Iterable[int],
         # Generate b from RNG
         def generate_bs() -> Iterator[int]:
             for _ in span:
-                yield bases.randrange(1, n)
-
-    elif bases is None and not isinstance(tries, int):
+                yield bases.randrange(1, n - 1)
+    else:
         # Take b from provided list
         def generate_bs() -> Iterator[int]:
             for b, _ in zip(bases, span):
+                if b > n - 2:
+                    raise ValueError(f'b value too large: {b}')
                 yield b
-
-    else:
-        raise TypeError('Invalid arguments for p-1 algorithm')
 
     ## Main algorithm
 
@@ -163,6 +161,7 @@ def find_factor_pm1(n: int, bound: int, bases: Random | Iterable[int],
         if 1 < g < n:
             return g
         elif g == n:
+            # This is unreachable, but it's in the notes.
             continue
         # else g == 1
         assert g == 1, '1 <= g <= n is always true'
