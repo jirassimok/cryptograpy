@@ -29,9 +29,11 @@ from .bititer import (asbit, Bit, BitIterator, PRNG, RngState, WrappingPRNG,
                       WrappingBitIterator)
 from .euclid import gcd
 from .fastexp import pow as fastexp
+from .pseudoprime import is_prime
+from .util import printer, Verbosity, is_verbose
+
 # Import these just because I used them in my examples.
 from .randprime import random_prime, system_random_prime  # noqa:F401
-from .util import printer, Verbosity, is_verbose
 
 
 __all__ = [
@@ -104,7 +106,9 @@ def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
     >>> next(rng)  # or rng.next_bit()
     >>> rng.next_int(32)
     """
-    if p % 4 != 3:
+    if not (is_prime(q) and is_prime(p)):
+        raise ValueError('Blum-Blum-Shub parameters not both prime')
+    elif p % 4 != 3:
         raise ValueError('p % 4 != 3')
     elif q % 4 != 3:
         raise ValueError('q % 4 != 3')
@@ -210,7 +214,9 @@ class BlumBlumShub(PRNG):
             p = p if n_or_p is None else n_or_p
             if p is None:
                 raise TypeError('q; no p')
-            if p % 4 != 3:
+            elif not (is_prime(q) and is_prime(p)):
+                raise ValueError('Blum-Blum-Shub parameters not both prime')
+            elif p % 4 != 3:
                 raise ValueError('p % 4 != 3')
             elif q % 4 != 3:
                 raise ValueError('q % 4 != 3')
