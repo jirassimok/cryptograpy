@@ -117,8 +117,8 @@ def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
 
     def generator(s: int) -> Iterator[Bit]:
         while True:
-            s = fastexp(s, 2, n)
             yield asbit(s)
+            s = fastexp(s, 2, n)
 
     def blumblumshub(seed: int) -> PRNG:
         if seed < 2 or gcd(n, seed) != 1:
@@ -170,8 +170,9 @@ class BlumBlumShub(PRNG):
 
     # The main part of the algorithm:
     def __next__(self) -> Bit:
+        val = asbit(self._state)
         self._state = fastexp(self._state, 2, self.modulus)
-        return asbit(self._state)
+        return val
 
     # __init__ is extra large because it's not straightforward to allow
     # both (n) and (p, q) as arguments.
@@ -232,6 +233,7 @@ class BlumBlumShub(PRNG):
             seed = 1 << n.bit_length()
 
         self._modulus = n
+        self._state = seed
         self.check_seeds = check_seeds
         self.seed(seed)
 
