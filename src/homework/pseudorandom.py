@@ -277,7 +277,7 @@ def naor_reingold(nbits, p, q,
     square_root : int
         A number coprime to p*q.
     r : sequence of ints
-        A sequence of nbits random bits.
+        A sequence of 2*nbits random bits.
     """
     if p.bit_length() != nbits:
         raise ValueError(f'{p} does not have {nbits} bits')
@@ -300,8 +300,8 @@ def naor_reingold(nbits, p, q,
     del square_root
 
     r = tuple(r)
-    if len(r) != nbits:
-        raise ValueError('r is not nbits bits long')
+    if len(r) != 2 * nbits:
+        raise ValueError('r is not 2*nbits bits long')
 
     def f(x) -> Bit:
         """The Naor-Reingold function."""
@@ -333,7 +333,7 @@ class NaorReingold(PRNG):
         An integer that is square in the integers mod n. (Called $g$ in the
         lecture notes.)
     r : sequence of ints
-        A list of nbits bits. (Called $r$ in the lecture notes.)
+        A list of 2*nbits bits. (Called $r$ in the lecture notes.)
 
     Parameters
     ----------
@@ -354,7 +354,7 @@ class NaorReingold(PRNG):
     square_root : int
         A number coprime to p*q.
     r : sequence of ints
-        A sequence of nbits random bits.
+        A sequence of 2*nbits random bits.
     """
     # Has one additional private variable:
     # _count : iterator of int
@@ -403,7 +403,7 @@ class NaorReingold(PRNG):
             if gcd(square_root, n) == 1:
                 break
 
-        r = [rng.next_bit() for _ in range(nbits)]
+        r = [rng.next_bit() for _ in range(2 * nbits)]
 
         return cls(nbits, p, q, pairs, square_root, r)
 
@@ -433,8 +433,8 @@ class NaorReingold(PRNG):
             raise ValueError('square_root not coprime to p*q')
 
         r = tuple(r)
-        if len(r) != nbits:
-            raise ValueError('r is not nbits bits long')
+        if len(r) != 2 * nbits:
+            raise ValueError('r is not 2*nbits bits long')
 
         self._nbits = nbits
         self._n = n
