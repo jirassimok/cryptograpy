@@ -95,6 +95,14 @@ def blum_blum_shub(p: int, q: int) -> Callable[[int], PRNG]:
     callable
         A function that takes in a seed and returns a BitIterator over the
         pseudorandom bits.
+
+    Example
+    -------
+    >>> p, q = 127, 311
+    >>> seed = 50
+    >>> rng = blum_blum_shub(p, q)(seed)
+    >>> next(rng)  # or rng.next_bit()
+    >>> rng.next_int(32)
     """
     if p % 4 != 3:
         raise ValueError('p % 4 != 3')
@@ -133,6 +141,9 @@ class BlumBlumShub(PRNG):
         A large prime number equal to 3, mod 4. Must be given with q.
     q : int, optional
         A large prime number equal to 3, mod 4. Must be given with p.
+
+    Keyword Parameters
+    ------------------
     seed : int, optional
         The initial seed for the RNG. If not given, the default is a value
         with the same bit length as n.
@@ -145,6 +156,7 @@ class BlumBlumShub(PRNG):
     >>> BlumBlumShub(p, q)
     >>> BlumBlumShub(n=n)
     >>> BlumBlumShub(p=p, q=q)
+    >>> BlumBlumShub(p, q, seed=50)
     """
     _state: int
 
