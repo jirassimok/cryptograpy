@@ -37,6 +37,10 @@ class TestNaorReingoldClass(unittest.TestCase):
         self.assertEqual(rng.f(1), 1, 'f(1)')
         self.assertEqual(rng.f(2), 0, 'f(2)')
 
+    def test_factory(self) -> None:
+        rng1 = pr.NaorReingold(**NR_EXAMPLE_ARGS)
+        pr.NaorReingold.from_rng(10, 661, 941, rng1)
+
 
 class TestNaorReingoldFunction(unittest.TestCase):
     def test_examples(self) -> None:
