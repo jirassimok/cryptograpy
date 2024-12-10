@@ -1,9 +1,9 @@
-#+title: Project report
+#+title: CS789 Project Report
+#+author: Jacob Komissar
 
 #+latex_header: \usepackage{parskip}
 #+latex_header: \lstset{basicstyle=\ttfamily, columns=fullflexible}
 #+latex_header: \lstset{upquote=true, keepspaces=true, showstringspaces=false}
-
 
 
 * Usage
@@ -134,8 +134,20 @@ basic
   >>> q = random_prime(16, rng)
   >>> privkey, pubkey = rsa.keygen(p, q, 65537)
   >>> ciphertext = rsa.encrypt(pubkey, 1234567890)
+  >>> print(rsa.decrypt(privkey, ciphertext))
+  1234567890
   >>>
-  >>> 
+  >>> p = random_prime(32, rng)
+  >>> base = primitive_root(p, smallest=False) # get a random root
+  >>> sender = ElGamal(p, base, 123341151)
+  >>> sender_key = sender.publish_key()
+  >>>
+  >>> recipient = ElGamal(sender_key.prime, sender_key.base, 55152557)
+  >>> recipient_key = recipient.publish_key()
+  >>>
+  >>> ciphertext = sender.encrypt(recipient_key.power, 987654321)
+  >>> print(recipient.decrypt(sender_key.power, ciphertext))
+  987654321
 #+end_src
 
 * Testing
@@ -151,37 +163,53 @@ To run the unit tests, use this command:
 I also used the flake8 tool to keep my code conforming to the canonical Python
 style guide, and mypy to statically check types to help ensure I always used
 functions correctly. Figure [[fig:tests]] shows the outputs of all three tools
-indicating no issues.
+indicating no issues[fn:newtests:There are actually a few more tests than the
+114 named shown in the image, both because I added some after taking that
+screenshot, and because =unittest= doesn't count sub-tests separately.
 
-# I also used the popular Python coverage tool coverage.py to monitor my test
-# coverage.
-# 
-# | File                         | Statements | Missing | Excluded | Coverage |
-# |------------------------------+------------+---------+----------+----------|
-# | src/homework/__init__.py     |         10 |       0 |        0 |     100% |
-# | src/homework/bit_class.py    |         99 |      34 |        7 |      66% |
-# | src/homework/bititer.py      |         96 |      24 |        1 |      75% |
-# | src/homework/cache_util.py   |         25 |       2 |        0 |      92% |
-# | src/homework/elgamal.py      |         36 |       2 |        0 |      94% |
-# | src/homework/euclid.py       |        212 |       0 |        0 |     100% |
-# | src/homework/factor.py       |        102 |      10 |        2 |      90% |
-# | src/homework/fastexp.py      |        170 |       0 |        0 |     100% |
-# | src/homework/homework4.py    |         89 |       0 |        2 |     100% |
-# | src/homework/pseudoprime.py  |         73 |       1 |        0 |      99% |
-# | src/homework/pseudorandom.py |        196 |      51 |       13 |      74% |
-# | src/homework/randprime.py    |         16 |      10 |        0 |      38% |
-# | src/homework/sieve.py        |        119 |       0 |        0 |     100% |
-# | src/homework/util.py         |         88 |      17 |       29 |      81% |
-#
-# The vast majority of the low-coverage code falls into three categories:
-# - Code I implemented as part of an API but did not use or test (as in
-#   =bititer.py=).
-# - Special cases where I added
-
-#+caption: ElGamal Alice (sender): public channel
+#+caption: Testing tool outputs
 #+name: fig:tests
 #+attr_html: :width 100%
-[[./elgamal-alice.png]]
+[[./test-results.png]]
+
+
+I also used the popular Python coverage tool coverage.py to monitor my test
+coverage. Here's the summary from my final coverage report:
+| File                         | statements | missing | excluded | coverage |
+|------------------------------+------------+---------+----------+----------|
+| src/homework/__init__.py     |         10 |       0 |        0 |     100% |
+| src/homework/bit_class.py    |         99 |      34 |        7 |      66% |
+| src/homework/bititer.py      |         96 |      23 |        1 |      76% |
+| src/homework/cache_util.py   |         25 |       2 |        0 |      92% |
+| src/homework/elgamal.py      |         33 |       0 |        3 |     100% |
+| src/homework/euclid.py       |        212 |       0 |        0 |     100% |
+| src/homework/factor.py       |        102 |      10 |        2 |      90% |
+| src/homework/fastexp.py      |        170 |       0 |        0 |     100% |
+| src/homework/homework4.py    |         89 |       0 |        2 |     100% |
+| src/homework/pseudoprime.py  |         73 |       1 |        0 |      99% |
+| src/homework/pseudorandom.py |        196 |      33 |       13 |      83% |
+| src/homework/randprime.py    |         16 |      10 |        0 |      38% |
+| src/homework/rsa.py          |         41 |       5 |        0 |      88% |
+| src/homework/sieve.py        |        119 |       0 |        0 |     100% |
+| src/homework/util.py         |         88 |      17 |       29 |      81% |
+|------------------------------+------------+---------+----------+----------|
+| Total                        |       1369 |     135 |       57 |      90% |
+
+The majority of the low-coverage code falls into two categories:
+- Code I implemented as part of an API but did not use or test (as in
+  =bititer.py=).
+- Special cases where I added extra handling for bad inputs (like negative
+  numbers where primes are expected), but didn't test those bad inputs (as in
+  =rsa.py=).
+
+To regenerate a coverage report, you have to first install the coverage tool
+(it's included, along with the other tools, if you run
+=pip install -r requirements.txt=), then run these commands:
+#+begin_src sh
+  ~/jik-crypto$ coverage run -m unittest discover -s src.tests -t .
+  ~/jik-crypto$ coverage html
+#+end_src
+This will generate a directory called =htmlcov= containing the coverage report.
 
 
 * Example exchanges
