@@ -6,7 +6,6 @@
 # Python
 __pycache__/
 
-htmlcov/
 .coverage
 .coverage.*
 coverage.*
