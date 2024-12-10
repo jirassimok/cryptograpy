@@ -7,6 +7,7 @@ is_primitive_root
 bsgs_log
 discrete_log
 """
+from collections.abc import Iterable, Sequence
 import math
 from random import randrange, sample as randsample
 
@@ -21,12 +22,12 @@ from .util import is_verbose, printer, supstr, Verbosity
 
 ## Primitive Root search algorithm
 
-def primitive_root(p, *,
-                   nocheck=False,
-                   smallest=True,
-                   base_tries=5,
-                   try_first=(),
-                   verbose_fastexp=False):
+def primitive_root(p: int, *,
+                   nocheck: bool = False,
+                   smallest: bool = True,
+                   base_tries: int = 5,
+                   try_first: Iterable[int] = (),
+                   verbose_fastexp: bool = False):
     """Find a primitive root of prime p.
 
     Always checks the numbers in try_first before any others, then performs
@@ -100,7 +101,7 @@ def primitive_root(p, *,
 
     # Exhaustive search, in random order for very small p, ascending order
     # otherwise.
-    bs = range(2, p)
+    bs: Sequence[int] = range(2, p)
     if p <= 10_000:
         # Shuffle the items, but now it
         # actually takes space.
