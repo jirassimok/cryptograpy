@@ -183,7 +183,6 @@ while developing this code, you can install the libraries listed in
 If the above command fails with "no module named pip," try creating and using a
 virtual environment:
 #+begin_src sh
-  ~/cryptograpy$
   ~/cryptograpy$ venvdir=./venv
   ~/cryptograpy$ python3.12 -m venv "$venvdir"
   ~/cryptograpy$ . "$venvdir"/bin/activate
