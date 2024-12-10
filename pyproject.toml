@@ -39,8 +39,5 @@ exclude_also = [
 ]
 
 omit = [
-    "src/homework/alt_primes.py",
-    "src/homework/integer_types.py",
-    "src/homework/homework4_notebook.py",
-    "src/homework/recursive_logging_decorator.py",
+    "src/tests/*",
 ]
