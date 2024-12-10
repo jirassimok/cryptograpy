@@ -31,13 +31,27 @@ class TestElgamal(unittest.TestCase):
                             recipient_key.power, ciphertext)
         self.assertEqual(message, cracked, 'cracked')
 
-    def test_basic(self):
+    def test_basic1(self):
         p = 632823293
         root = 345542487
         secrets = 41156121, 12344511
         self.end_to_end(p, root, *secrets, 123456)
         self.end_to_end(p, root, *secrets, 7756221)
         self.end_to_end(p, root, *secrets, 5458782)
+        self.end_to_end(p, root, *secrets, root)
+        self.end_to_end(p, root, *secrets, secrets[0])
+        self.end_to_end(p, root, *secrets, secrets[1])
+
+    def test_basic2(self):
+        p = 3017610907
+        root = 2320166328
+        secrets = 517123787, 1099456671
+        self.end_to_end(p, root, *secrets, 123456)
+        self.end_to_end(p, root, *secrets, 7756221)
+        self.end_to_end(p, root, *secrets, 5458782)
+        self.end_to_end(p, root, *secrets, root)
+        self.end_to_end(p, root, *secrets, secrets[0])
+        self.end_to_end(p, root, *secrets, secrets[1])
 
     def test_example_alice(self):
         """Test the examples from my report.
