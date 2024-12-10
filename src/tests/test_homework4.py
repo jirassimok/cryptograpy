@@ -120,6 +120,18 @@ class TestPrimitiveRoot(unittest.TestCase):
         self.assertEqual(primitive_root(p, smallest=False, base_tries=0), 23,
                          p)
 
+    def test_rng(self):
+        from homework.pseudorandom import BlumBlumShub
+        rng = BlumBlumShub(39_8150_7059, 40_9352_7731, seed=61_5132_5161)
+
+        for p in (9419, 3779): # 9419 has 4416 roots, 3779 has 1888
+            while 2 == (root := primitive_root(p, smallest=False,
+                                               base_tries=0,
+                                               rng=rng)):
+                pass # loop until we find a non-smallest root
+            self.assertIsRoot(p, root)
+
+
 
 class TestIsPrimitiveRoot(unittest.TestCase):
     simple_params = TestPrimitiveRoot.simple_params

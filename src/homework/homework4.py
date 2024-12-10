@@ -9,15 +9,37 @@ discrete_log
 """
 from collections.abc import Iterable, Sequence
 import math
-from random import randrange, sample as randsample
 
 from .factor import unique_factors
 from .fastexp import fastexp
 from .pseudoprime import is_prime
+from .pseudorandom import BlumBlumShub, PRNG
 from .util import is_verbose, printer, supstr, Verbosity
 
 # TODO: Split this functions out into appropriate modules or
 #       at least rename this one.
+
+
+PRIMITIVE_ROOT_DEFAULT_RNG: PRNG = BlumBlumShub(
+    234367422922684911520319120648413440991,  # These are 128 bits each.
+    239840048316415512309581108967084239099)
+"""The default PRNG used by primitive_root when it needs randomness.
+
+For maximal security when generating random primitive roots, pass a trusted
+PRNG to that function, or change this field to a trusted PRNG before using it.
+"""
+import time  # noqa:E402
+# Highest-precision clock available, modified to exactly 129 bits and odd.
+seed = time.perf_counter_ns() | (1 << 129) | (2**129 - 1) | 1
+# This seed is guaranteed to be valid, because for both of the two primes
+# used above, the seed can't be either because it's too big, can't be double
+# either because it's odd, and can't be a higher multiple because it's too
+# small, so it must be coprime to their product.
+PRIMITIVE_ROOT_DEFAULT_RNG.seed(seed)
+# Make it generate a new large number to seed itself, using the same logic
+# as above to ensure it's a valid seed.
+seed = PRIMITIVE_ROOT_DEFAULT_RNG.next_int(128) | (1 << 129) | 1
+del time, seed
 
 
 ## Primitive Root search algorithm
@@ -27,6 +49,7 @@ def primitive_root(p: int, *,
                    smallest: bool = True,
                    base_tries: int = 5,
                    try_first: Iterable[int] = (),
+                   rng: PRNG | None = None,
                    verbose_fastexp: bool = False):
     """Find a primitive root of prime p.
 
@@ -40,7 +63,7 @@ def primitive_root(p: int, *,
     For small p, the fallback exhaustive search is performed in random order.
     For large p, it is performed in ascending order.
 
-    (When looking for a random primitive root, this function uses Python's
+    (When looking for a random primitive root, this function uses the module's
     default RNG.)
 
     Parameters
@@ -59,6 +82,10 @@ def primitive_root(p: int, *,
         all of the remaining arguments.
     base_tries : int, default 5
         Test this many random numbers before giving up on the random search.
+    rng : PRNG, optional
+        If given, a PRNG to use for determining the random primitive root
+        guesses and the random search order. If not given, uses the module's
+        PRIMITIVE_ROOT_DEFAULT_RNG.
     verbose_fastexp : bool or None, default False
         Passed to the verbose parameter of fastexp.
     """
@@ -66,6 +93,9 @@ def primitive_root(p: int, *,
         return 1
     elif p == 4:
         return 3
+
+    if rng is None:
+        rng = PRIMITIVE_ROOT_DEFAULT_RNG
 
     if not nocheck and not is_prime(p):
         raise NotImplementedError(
@@ -95,7 +125,7 @@ def primitive_root(p: int, *,
         assert False, f"unreachable: primitive roots mod {p} should exist"
 
     for _ in range(base_tries): # random guesses
-        b = randrange(2, p)
+        b = rng.randrange(2, p)
         if is_root(b):
             return b
 
@@ -105,7 +135,7 @@ def primitive_root(p: int, *,
     if p <= 10_000:
         # Shuffle the items, but now it
         # actually takes space.
-        bs = randsample(bs, len(bs))
+        bs = rng.sample(bs, len(bs))
     for b in bs:
         if is_root(b):
             return b
