@@ -160,6 +160,9 @@ The majority of the un-covered code falls into two categories:
   where primes are expected), but didn't test those bad inputs (as in
   =rsa.py=).
 
+If present, the =htmlcov= directory also contains a full test coverage report;
+see =htmlcov/index.html=.
+
 ** Tools
 To generate a new a coverage report, you have to first install the coverage
 tool then run these commands:
