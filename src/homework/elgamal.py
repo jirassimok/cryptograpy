@@ -62,7 +62,7 @@ class ElGamal:
         self._secret = secret
         self.power = fastexp(self.base, self._secret, self.prime)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         p, base, secret = self.prime, self.base, self._secret
         return f'{type(self).__name__}({p=}, {base=}, {secret=})'
 
