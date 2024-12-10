@@ -36,6 +36,7 @@ __all__ = (
     'pseudoprime',
     'pseudorandom',
     'randprime',
+    'rsa',
     # Re-exported functions
     'ElGamal',
     'crack_elgamal',
