@@ -13,97 +13,48 @@ newer (previous versions of Python will not work[fn::I used new language
 features for type hints, so 3.11 will get syntax errors].
 
 To use it, run a python interpreter in the =src= directory, and import
-from the =homework= module.
+from the =homework= module.[fn::Using the project root directory will
+also work; you'll just have to import from =src.homework= instead.]
 
 #+begin_src sh
   ~$ dir=jik-crypto
   ~$ git clone https://github.com/jirassimok/roll-your-own-crypto.git "$dir"
   ~$ cd "$dir/src"
   ~/jik-crypto/src$ python3.12
-  >>> # These are examples of ways you can import things from the modules.
+  >>> # These are examples of ways you can import functions from the modules.
   >>> import homework
-  >>> import homework.
+  >>> from homework import discrete_log, primitive_root
   >>> from homework import *
 #+end_src
 
-I have carefully documented the most important functions and classes
-in each module, which can be viewed at the top of each module's file or in the
+I have carefully documented the most important functions and classes in each
+module, lists of which can be viewed at the top of each module's file or in the
 =DESCRIPTION= section of the module's help in Python REPL.
 #+begin_src sh
   >>> import homework
   >>> help(homework)
-  >>> help(homework.euclid)  # module help
+  >>> help(homework.euclid)  # submodule help
   >>> help(homework.euclid.euclid)  # function help
 #+end_src
+The individual documentation for the functions and classes can be found in the
+same way in the REPL, or in the source code as a string immediately after their
+declarations. See the appendices for
+[[*Appendix: Key function listing][a list of the key functions in the root module]]
+and [[*Appendix: Example documentation][an example of a function's documentation]].
+
 If you want to try any of the functions in particular, please consult the
-examples of usage below to understand the basic calling conventions, and
+examples of usage [[*Extended usage example][below]] to understand the basic calling conventions, and
 the help strings for the particulars of each function.
 
-** Example documentation
+If you install the development tools (see [[*Tools]]), you can use the =ipython=
+interpreter, which provides nicer tab completion and also lets you view
+the documentation using the special =?= operator.
+#+begin_src sh
+  (venv) ~/jik-crypto/src$ ipython
+  In [1]: import homework
+  In [2]: homework.primitive_root?
+#+end_src
 
-Here's the documentation for my primary implementation of the extended
-Euclidean algorithm, as an example:
-#+begin_example
-  Find GCD and coefficients using the Extended Euclidean algorithm.
-
-  Given m and n, returns g, s, and t, such that g is the greatest common
-  divisor of m and n, and m*s + n*t == g.
-
-  Parameters
-  ----------
-  (m) : int
-  (n) : int
-
-  Keyword parameters
-  ------------------
-  verbose : bool, optional
-      If false, print nothing. If true, or if not given and util.VERBOSE
-      is true, print the steps of the algorithm in a table-like format.
-#+end_example
-
-** Key object listing
-This is the list of key functions in the root module. For convenience, I've
-included the basic parameter lists for some of the functions as well.[fn::Refer
-to their documentation for full parameter lists, or for functions without
-parameters listed here.]
-- Encryption systems
-  - =rsa= (actually a module)
-    - =rsa.keygen(p, q, e)=
-    - =rsa.encrypt(key, m)=
-    - =rsa.decrypt(key, c)=
-    - =rsa.crack=
-  - =ElGamal(prime, base, secret)= (class constructor)
-    - =ElGamal.publishkey= (instance method)
-    - =ElGamal.encrypt= (instance method)
-    - =ElGamal.decrypt= (instance method)
-  - =crack_elgamal=
-- General algorithms
-  - =gcd=
-  - =ext_euclid=
-  - =pow(base, exp, mod)=
-  - =primitive_root=
-  - =is_primitive_root=
-  - =discrete_log(power, base, mod)=
-  - =strong_prime_test=
-  - =is_prime=
-  - Factorization
-    - =find_factor_rho=
-    - =find_factor_pm1=
-    - =factors=
-    - =unique_factors=
-- PRNGs
-  - =blum_blum_shub=
-  - =BlumBlumShub= (class)
-  - =naor_reingold=
-  - =NaorReingold= (class)
-- Additional utilities
-  - =random_prime=
-  - =random_prime_3mod4=
-  - =system_random_prime=
-  - =system_random_prime_3mod4=
-
-The root module also exports various submodules, which are described in the
-module's documentation.
 
 ** Extended usage example
 Here is an extended example of the usage of my code, covering a few of the
@@ -121,8 +72,8 @@ basic
   >>> pow(26, 22, 137)  # also available as fastexp.fastexp
   101
   >>> # Documented keyword parameters must be given by name, as below:
-  >>> # fastexp.fastexp(26, 22, 137, verbose=True)
-  >>>
+  >>> fastexp.fastexp(26, 22, 137, verbose=True)
+  101
   >>> rng = BlumBlumShub(62423, 49523, seed=1411122231)
   >>> next(rng)
   1
@@ -134,7 +85,7 @@ basic
   >>> q = random_prime(16, rng)
   >>> privkey, pubkey = rsa.keygen(p, q, 65537)
   >>> ciphertext = rsa.encrypt(pubkey, 1234567890)
-  >>> print(rsa.decrypt(privkey, ciphertext))
+  >>> rsa.decrypt(privkey, ciphertext)
   1234567890
   >>>
   >>> p = random_prime(32, rng)
@@ -146,7 +97,7 @@ basic
   >>> recipient_key = recipient.publish_key()
   >>>
   >>> ciphertext = sender.encrypt(recipient_key.power, 987654321)
-  >>> print(recipient.decrypt(sender_key.power, ciphertext))
+  >>> recipient.decrypt(sender_key.power, ciphertext)
   987654321
   >>>
   >>> # Some functions return iterators or generators; you can make those
@@ -177,6 +128,7 @@ screenshot, and because =unittest= doesn't count sub-tests separately.
 #+attr_html: :width 100%
 [[./test-results.png]]
 
+** Coverage
 
 I also used the popular Python coverage tool coverage.py to monitor my test
 coverage. Here's the summary from my final coverage report:
@@ -185,13 +137,13 @@ coverage. Here's the summary from my final coverage report:
 |--------------------------------+------------+---------+----------+----------|
 | =src/homework/__init__.py=     |         10 |       0 |        0 |     100% |
 | =src/homework/bit_class.py=    |         99 |      34 |        7 |      66% |
-| =src/homework/bititer.py=      |         96 |      23 |        1 |      76% |
+| =src/homework/bititer.py=      |         96 |      22 |        1 |      77% |
 | =src/homework/cache_util.py=   |         25 |       2 |        0 |      92% |
 | =src/homework/elgamal.py=      |         33 |       0 |        3 |     100% |
 | =src/homework/euclid.py=       |        212 |       0 |        0 |     100% |
 | =src/homework/factor.py=       |        102 |      10 |        2 |      90% |
 | =src/homework/fastexp.py=      |        170 |       0 |        0 |     100% |
-| =src/homework/homework4.py=    |         89 |       0 |        2 |     100% |
+| =src/homework/homework4.py=    |         99 |       0 |        2 |     100% |
 | =src/homework/pseudoprime.py=  |         73 |       1 |        0 |      99% |
 | =src/homework/pseudorandom.py= |        196 |      33 |       13 |      83% |
 | =src/homework/randprime.py=    |         16 |      10 |        0 |      38% |
@@ -199,24 +151,40 @@ coverage. Here's the summary from my final coverage report:
 | =src/homework/sieve.py=        |        119 |       0 |        0 |     100% |
 | =src/homework/util.py=         |         88 |      17 |       29 |      81% |
 |--------------------------------+------------+---------+----------+----------|
-| Total                          |       1369 |     135 |       57 |      90% |
+| Total                          |       1379 |     134 |       57 |      90% |
 
-The majority of the low-coverage code falls into two categories:
-- Code I implemented as part of an API but did not use or test (as in
-  =bititer.py=).
-- Special cases where I added extra handling for bad inputs (like negative
-  numbers where primes are expected), but didn't test those bad inputs (as in
+The majority of the un-covered code falls into two categories:
+- Code I implemented as part of an API that I did not use or test (like large
+  parts of =bititer.py= and =bit_class.py=).
+- Places where I added extra handling for bad inputs (like negative numbers
+  where primes are expected), but didn't test those bad inputs (as in
   =rsa.py=).
 
-To regenerate a coverage report, you have to first install the coverage tool
-(it's included, along with the other tools, if you run
-=pip install -r requirements.txt=), then run these commands:
+** Tools
+To generate a new a coverage report, you have to first install the coverage
+tool then run these commands:
 #+begin_src sh
   ~/jik-crypto$ coverage run -m unittest discover -s src.tests -t .
   ~/jik-crypto$ coverage html
 #+end_src
 This will generate a directory called =htmlcov= containing the coverage report.
 
+To install coverage.py, as well as mypy, flake8, and the other libraries I used
+while developing this code, you can install the libraries listed in
+=requirements.txt=.
+#+begin_src sh
+  ~/jik-crypto$ python3.12 -m pip install -r requirements.txt
+#+end_src
+
+If the above command fails with "no module named pip," try creating and using a
+virtual environment:
+#+begin_src sh
+  ~/jik-crypto$ 
+  ~/jik-crypto$ venvdir=./venv
+  ~/jik-crypto$ python3.12 -m venv "$venvdir"
+  ~/jik-crypto$ . "$venvdir"/bin/activate
+  (venv) ~/jik-crypto/src$ pip install -r requirements.txt
+#+end_src
 
 * Example exchanges
 
@@ -387,3 +355,72 @@ message.
 #+caption: RSA Eve: private computation
 #+attr_html: :width 100%
 [[./rsa-eve-shell.png]]
+
+* Appendix: Key function listing
+This is the list of key functions, classes and modules exported by the root
+module. For convenience, I've included the basic parameter lists for some of
+the functions as well. Refer to their documentation for full parameter
+lists, or for functions without parameters listed here.
+
+Please refer to the documentation for the root module (found in
+=src/homework/__init__.py=) for the remaining exports, including the various
+submodules that actually define the functions.
+
+- Encryption systems
+  - =rsa= (actually a module)
+    - =rsa.keygen(p, q, e)=
+    - =rsa.encrypt(key, m)=
+    - =rsa.decrypt(key, c)=
+    - =rsa.crack=
+  - =ElGamal(prime, base, secret)= (class constructor)
+    - =ElGamal.publishkey= (instance method)
+    - =ElGamal.encrypt= (instance method)
+    - =ElGamal.decrypt= (instance method)
+  - =crack_elgamal=
+- General algorithms
+  - =gcd=
+  - =ext_euclid=
+  - =pow(base, exp, mod)=
+  - =primitive_root=
+  - =is_primitive_root=
+  - =discrete_log(power, base, mod)=
+  - =strong_prime_test=
+  - =is_prime=
+  - Factorization
+    - =find_factor_rho=
+    - =find_factor_pm1=
+    - =factors=
+    - =unique_factors=
+- PRNGs
+  - =blum_blum_shub=
+  - =BlumBlumShub= (class)
+  - =naor_reingold=
+  - =NaorReingold= (class)
+- Additional utilities
+  - =random_prime=
+  - =random_prime_3mod4=
+  - =system_random_prime=
+  - =system_random_prime_3mod4=
+
+
+* Appendix: Example documentation
+
+Here is the documentation for my primary implementation of the extended
+Euclidean algorithm, as an example:
+#+begin_example
+  Find GCD and coefficients using the Extended Euclidean algorithm.
+
+  Given m and n, returns g, s, and t, such that g is the greatest common
+  divisor of m and n, and m*s + n*t == g.
+
+  Parameters
+  ----------
+  (m) : int
+  (n) : int
+
+  Keyword parameters
+  ------------------
+  verbose : bool, optional
+      If false, print nothing. If true, or if not given and util.VERBOSE
+      is true, print the steps of the algorithm in a table-like format.
+#+end_example
