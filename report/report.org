@@ -17,10 +17,10 @@ from the =homework= module.[fn::Using the project root directory will
 also work; you'll just have to import from =src.homework= instead.]
 
 #+begin_src sh
-  ~$ dir=jik-crypto
+  ~$ dir=cryptograpy
   ~$ git clone https://github.com/jirassimok/roll-your-own-crypto.git "$dir"
   ~$ cd "$dir/src"
-  ~/jik-crypto/src$ python3.12
+  ~/cryptograpy/src$ python3.12
   >>> # These are examples of ways you can import functions from the modules.
   >>> import homework
   >>> from homework import discrete_log, primitive_root
@@ -50,7 +50,7 @@ If you install the development tools (see [[*Tools]]), you can use the =ipython=
 interpreter, which provides nicer tab completion and also lets you view
 the documentation using the special =?= operator.
 #+begin_src sh
-  (venv) ~/jik-crypto/src$ ipython
+  (venv) ~/cryptograpy/src$ ipython
   In [1]: import homework
   In [2]: homework.primitive_root?
 #+end_src
@@ -58,7 +58,7 @@ the documentation using the special =?= operator.
 
 ** Extended usage example
 Here is an extended example of the usage of my code, covering a few of the
-basic 
+basic
 #+begin_src python
   >>> import homework
   >>> from homework import *
@@ -113,7 +113,7 @@ These tests are in the =src/tests=
 
 To run the unit tests, use this command:
 #+begin_src sh
-  ~/jik-crypto$ python3.12 -m unittest discover -s src.tests -t .
+  ~/cryptograpy$ python3.12 -m unittest discover -s src.tests -t .
 #+end_src
 
 I also used the flake8 tool to keep my code conforming to the canonical Python
@@ -164,8 +164,8 @@ The majority of the un-covered code falls into two categories:
 To generate a new a coverage report, you have to first install the coverage
 tool then run these commands:
 #+begin_src sh
-  ~/jik-crypto$ coverage run -m unittest discover -s src.tests -t .
-  ~/jik-crypto$ coverage html
+  ~/cryptograpy$ coverage run -m unittest discover -s src.tests -t .
+  ~/cryptograpy$ coverage html
 #+end_src
 This will generate a directory called =htmlcov= containing the coverage report.
 
@@ -173,17 +173,17 @@ To install coverage.py, as well as mypy, flake8, and the other libraries I used
 while developing this code, you can install the libraries listed in
 =requirements.txt=.
 #+begin_src sh
-  ~/jik-crypto$ python3.12 -m pip install -r requirements.txt
+  ~/cryptograpy$ python3.12 -m pip install -r requirements.txt
 #+end_src
 
 If the above command fails with "no module named pip," try creating and using a
 virtual environment:
 #+begin_src sh
-  ~/jik-crypto$ 
-  ~/jik-crypto$ venvdir=./venv
-  ~/jik-crypto$ python3.12 -m venv "$venvdir"
-  ~/jik-crypto$ . "$venvdir"/bin/activate
-  (venv) ~/jik-crypto/src$ pip install -r requirements.txt
+  ~/cryptograpy$
+  ~/cryptograpy$ venvdir=./venv
+  ~/cryptograpy$ python3.12 -m venv "$venvdir"
+  ~/cryptograpy$ . "$venvdir"/bin/activate
+  (venv) ~/cryptograpy/src$ pip install -r requirements.txt
 #+end_src
 
 * Example exchanges
