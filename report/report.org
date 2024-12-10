@@ -5,6 +5,8 @@
 #+latex_header: \lstset{basicstyle=\ttfamily, columns=fullflexible}
 #+latex_header: \lstset{upquote=true, keepspaces=true, showstringspaces=false}
 
+#+macro: zoomimg @@latex:\begin{center}\includegraphics[width=.9\linewidth,trim={0 15cm 0 0},clip]{$1}\end{center}@@
+
 
 * Usage
 
@@ -123,7 +125,6 @@ indicating no issues[fn:newtests:There are actually a few more tests than the
 114 named shown in the image, both because I added some after taking that
 screenshot, and because =unittest= doesn't count sub-tests separately.
 
-#+caption: Testing tool outputs
 #+name: fig:tests
 #+attr_html: :width 100%
 [[./test-results.png]]
@@ -239,12 +240,7 @@ table, I had to take the discrete log of my public key.
 # Two lines left blank to end footnote
 
 
-#+caption: ElGamal Alice (sender): public channel
-#+attr_html: :width 100%
-[[./elgamal-alice.png]]
-
-#+caption: ElGamal Alice (sender): private computation
-#+attr_html: :width 100%
+{{{zoomimg(./elgamal-alice.png)}}}
 [[./elgamal-alice-shell.png]]
 
 
@@ -262,14 +258,8 @@ recieved a ciphertext from Alice that I decypted using my private key.
 | Decrypted ciphertext    | 586 |
 
 
-#+caption: ElGamal Bob (recipient): public channel
-#+attr_html: :width 100%
-[[./elgamal-bob.png]]
-
-#+caption: ElGamal Bob (recipient): private computation
-#+attr_html: :width 100%
+{{{zoomimg(./elgamal-bob.png)}}}
 [[./elgamal-bob-shell.png]]
-
 
 *** Eve
 As Eve attacking ElGamal, I observed Alice and Bob's prime, primitive root,
@@ -284,12 +274,7 @@ hidden message.
 | Decrypted ciphertext |     72105 |
 
 
-#+caption: ElGamal Eve: public channel
-#+attr_html: :width 100%
-[[./elgamal-eve.png]]
-
-#+caption: ElGamal Eve: private computation
-#+attr_html: :width 100%
+{{{zoomimg(./elgamal-eve.png)}}}
 [[./elgamal-eve-shell.png]]
 
 
@@ -305,12 +290,7 @@ Bob.
 | Message                          |     24601 |
 | Encrypted message                |   2725461 |
 
-#+caption: RSA Alice (recipient): public channel
-#+attr_html: :width 100%
-[[./rsa-alice.png]]
-
-#+caption: RSA Alice (recipient): private computation
-#+attr_html: :width 100%
+{{{zoomimg(./rsa-alice.png)}}}
 [[./rsa-alice-shell.png]]
 
 *** Bob
@@ -331,12 +311,7 @@ I chose random 30-bit primes for \(p\) and \(q\) (and got a 60-bit \(n\) and
 | Ciphertext                          | 526095868287819837 |
 | Decrypted ciphertext                |         4426666244 |
 
-#+caption: RSA Bob (sender): public channel
-#+attr_html: :width 100%
-[[./rsa-bob.png]]
-
-#+caption: RSA Bob (sender): private computation
-#+attr_html: :width 100%
+{{{zoomimg(./rsa-bob.png)}}}
 [[./rsa-bob-shell.png]]
 
 
@@ -351,12 +326,7 @@ message.
 | Ciphertext                         | 508054907 |
 | Decrypted ciphertext               |      3981 |
 
-#+caption: RSA Eve: public channel
-#+attr_html: :width 100%
-[[./rsa-eve.png]]
-
-#+caption: RSA Eve: private computation
-#+attr_html: :width 100%
+{{{zoomimg(./rsa-eve.png)}}}
 [[./rsa-eve-shell.png]]
 
 * Appendix: Key function listing
