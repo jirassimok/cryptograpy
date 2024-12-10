@@ -62,17 +62,17 @@ Euclidean algorithm, as an example:
 #+end_example
 
 ** Key object listing
-This is the list of key functions in the root module. For conveinence, I've
+This is the list of key functions in the root module. For convenience, I've
 included the basic parameter lists for some of the functions as well.[fn::Refer
 to their documentation for full parameter lists, or for functions without
 parameters listed here.]
 - Encryption systems
   - =rsa= (actually a module)
     - =rsa.keygen(p, q, e)=
-    - =rsa.encrypt(key, m)==
+    - =rsa.encrypt(key, m)=
     - =rsa.decrypt(key, c)=
     - =rsa.crack=
-  - =ElGamal= (class constructor)
+  - =ElGamal(prime, base, secret)= (class constructor)
     - =ElGamal.publishkey= (instance method)
     - =ElGamal.encrypt= (instance method)
     - =ElGamal.decrypt= (instance method)
@@ -80,10 +80,10 @@ parameters listed here.]
 - General algorithms
   - =gcd=
   - =ext_euclid=
-  - =pow=
+  - =pow(base, exp, mod)=
   - =primitive_root=
   - =is_primitive_root=
-  - =discrete_log=
+  - =discrete_log(power, base, mod)=
   - =strong_prime_test=
   - =is_prime=
   - Factorization
@@ -148,6 +148,11 @@ basic
   >>> ciphertext = sender.encrypt(recipient_key.power, 987654321)
   >>> print(recipient.decrypt(sender_key.power, ciphertext))
   987654321
+  >>>
+  >>> # Some functions return iterators or generators; you can make those
+  >>> # into lists like this:
+  >>> list(factors(2*5*13*29))
+  [2, 5, 13, 29]
 #+end_src
 
 * Testing
@@ -175,25 +180,26 @@ screenshot, and because =unittest= doesn't count sub-tests separately.
 
 I also used the popular Python coverage tool coverage.py to monitor my test
 coverage. Here's the summary from my final coverage report:
-| File                         | statements | missing | excluded | coverage |
-|------------------------------+------------+---------+----------+----------|
-| src/homework/__init__.py     |         10 |       0 |        0 |     100% |
-| src/homework/bit_class.py    |         99 |      34 |        7 |      66% |
-| src/homework/bititer.py      |         96 |      23 |        1 |      76% |
-| src/homework/cache_util.py   |         25 |       2 |        0 |      92% |
-| src/homework/elgamal.py      |         33 |       0 |        3 |     100% |
-| src/homework/euclid.py       |        212 |       0 |        0 |     100% |
-| src/homework/factor.py       |        102 |      10 |        2 |      90% |
-| src/homework/fastexp.py      |        170 |       0 |        0 |     100% |
-| src/homework/homework4.py    |         89 |       0 |        2 |     100% |
-| src/homework/pseudoprime.py  |         73 |       1 |        0 |      99% |
-| src/homework/pseudorandom.py |        196 |      33 |       13 |      83% |
-| src/homework/randprime.py    |         16 |      10 |        0 |      38% |
-| src/homework/rsa.py          |         41 |       5 |        0 |      88% |
-| src/homework/sieve.py        |        119 |       0 |        0 |     100% |
-| src/homework/util.py         |         88 |      17 |       29 |      81% |
-|------------------------------+------------+---------+----------+----------|
-| Total                        |       1369 |     135 |       57 |      90% |
+| File                           | statements | missing | excluded | coverage |
+| /                              |        <r> |     <r> |      <r> |      <r> |
+|--------------------------------+------------+---------+----------+----------|
+| =src/homework/__init__.py=     |         10 |       0 |        0 |     100% |
+| =src/homework/bit_class.py=    |         99 |      34 |        7 |      66% |
+| =src/homework/bititer.py=      |         96 |      23 |        1 |      76% |
+| =src/homework/cache_util.py=   |         25 |       2 |        0 |      92% |
+| =src/homework/elgamal.py=      |         33 |       0 |        3 |     100% |
+| =src/homework/euclid.py=       |        212 |       0 |        0 |     100% |
+| =src/homework/factor.py=       |        102 |      10 |        2 |      90% |
+| =src/homework/fastexp.py=      |        170 |       0 |        0 |     100% |
+| =src/homework/homework4.py=    |         89 |       0 |        2 |     100% |
+| =src/homework/pseudoprime.py=  |         73 |       1 |        0 |      99% |
+| =src/homework/pseudorandom.py= |        196 |      33 |       13 |      83% |
+| =src/homework/randprime.py=    |         16 |      10 |        0 |      38% |
+| =src/homework/rsa.py=          |         41 |       5 |        0 |      88% |
+| =src/homework/sieve.py=        |        119 |       0 |        0 |     100% |
+| =src/homework/util.py=         |         88 |      17 |       29 |      81% |
+|--------------------------------+------------+---------+----------+----------|
+| Total                          |       1369 |     135 |       57 |      90% |
 
 The majority of the low-coverage code falls into two categories:
 - Code I implemented as part of an API but did not use or test (as in
